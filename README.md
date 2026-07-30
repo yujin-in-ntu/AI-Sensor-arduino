@@ -38,6 +38,7 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 설치가 끝났다면 모든 운영체제에서 공통으로 사용하는 실습 문서로 이동합니다.
 
 - [01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
+- [촬영이 어려울 때 공개 예제 데이터로 전처리·학습](docs/EXAMPLE_DATA.md)
 - [0단계: Python·NumPy 문법 한 줄 빈칸](docs/PYTHON_NUMPY_START.md)
 - [Softmax·역전파·추론 코드를 직접 채우는 AI 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
@@ -121,6 +122,8 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 ```text
 data/camera_full/<숫자>/       160×120 원본 PGM
 data/camera_digits/<숫자>/     전처리된 28×28 PGM
+data/example_camera_full/      공개 예제 원본 0~3, 각 20장
+data/example_camera_digits/    공개 예제 전처리본 0~3, 각 20장
 models/camera/                 직접 촬영 모델
 models/mnist/                  MNIST 모델
 arduino/camera_03_inference/model_data.h
@@ -128,6 +131,10 @@ arduino/camera_03_inference/model_data.h
 ```
 
 개인의 촬영 데이터, 학습 모델, 생성된 `model_data.h`는 Git에 올리지 않도록 `.gitignore`에 등록되어 있습니다. 저장소를 새로 복제한 학생은 직접 데이터를 모으거나 MNIST를 학습해 자신의 헤더를 생성합니다.
+
+카메라 데이터 수집이 어려운 학생은 저장소에 포함된 공개 예제 원본과 28×28
+전처리본으로 전처리·CNN 학습·모델 생성을 실행할 수 있습니다. 명령은
+[공개 예제 데이터 실습](docs/EXAMPLE_DATA.md)에 정리되어 있습니다.
 
 ## 전처리 방식
 
