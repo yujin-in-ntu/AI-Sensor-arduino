@@ -53,6 +53,78 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 앞 명령이 끝난 뒤 다음 명령을 실행하세요. 명령 앞의 `PS C:\...>` 같은 터미널
 표시는 입력하지 않습니다.
 
+### 0단계: Git, Python 3.11, Arduino IDE 2 설치
+
+이미 세 프로그램이 모두 설치되어 있다면 버전만 확인하고 1단계로 이동합니다.
+수업용 PC를 처음 준비한다면 아래 순서대로 설치하세요.
+
+#### 0-1. Git 확인 및 설치
+
+Windows PowerShell에서 확인합니다.
+
+```powershell
+git --version
+```
+
+`git version ...`이 나오면 설치되어 있습니다. `git`을 찾을 수 없다는 오류가
+나오면 [Git for Windows](https://git-scm.com/download/win)를 설치한 뒤 열려 있던
+PowerShell을 모두 닫고 새 PowerShell을 엽니다.
+
+macOS와 Ubuntu의 Git 설치 방법은 각각 [macOS 설치 안내](docs/MACOS.md),
+[Ubuntu 설치 안내](docs/UBUNTU.md)를 참고합니다.
+
+#### 0-2. Python 3.11 확인 및 설치
+
+이 프로젝트는 `TensorFlow 2.15.1`을 사용하므로 **Python 3.11 64비트**를
+권장합니다. 최신 버전이라는 이유로 Python 3.12 이상을 설치하지 마세요.
+
+Windows PowerShell에서 먼저 확인합니다.
+
+```powershell
+python --version
+```
+
+`Python 3.11.x`가 나오면 Python 설치는 끝난 것입니다. 다음과 같은 경우에는
+Python을 새로 설치합니다.
+
+- `python`을 찾을 수 없다는 오류가 나옵니다.
+- Microsoft Store만 열리고 버전이 표시되지 않습니다.
+- Python 3.12 이상의 버전이 표시됩니다.
+
+Windows 설치 순서:
+
+1. [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)를 엽니다.
+2. 페이지 아래 `Files`에서 `Windows installer (64-bit)`를 내려받습니다.
+3. 설치 프로그램 첫 화면에서 **`Add python.exe to PATH`를 반드시 체크**합니다.
+4. `Install Now`를 누르고 설치를 완료합니다.
+5. 열려 있던 PowerShell을 모두 닫고 새 PowerShell을 엽니다.
+6. `python --version`을 다시 실행해 `Python 3.11.x`가 나오는지 확인합니다.
+
+설치했는데도 `python`을 찾지 못하면 설치 프로그램을 다시 실행해 `Modify`에서
+PATH 관련 항목을 활성화합니다. `py -3.11 --version`만 정상 동작하는 경우에는
+2단계의 첫 명령을 `py -3.11 -m venv .venv`로 실행해도 됩니다. 가상환경을 만든
+뒤에는 문서에 적힌 `\.venv\Scripts\python.exe` 명령을 그대로 사용합니다.
+
+macOS에서는 `python3 --version`을 사용합니다. Ubuntu를 포함한 자세한 설치법은
+[macOS 설치 안내](docs/MACOS.md)와 [Ubuntu 설치 안내](docs/UBUNTU.md)를 따릅니다.
+
+#### 0-3. Arduino IDE 2 설치 및 보드 준비
+
+1. [Arduino IDE 2 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 운영체제에 맞는 Arduino IDE 2를 설치합니다.
+2. Arduino IDE 2를 실행합니다.
+3. 왼쪽 `Boards Manager`에서 `Arduino Mbed OS Nano Boards`를 검색해 설치합니다.
+4. Nano 33 BLE Sense Lite를 데이터 통신용 USB 케이블로 연결합니다.
+5. IDE 상단 보드 메뉴에서 `Arduino Nano 33 BLE`와 연결된 포트를 선택합니다.
+6. 카메라와 TensorFlow Lite 라이브러리는 운영체제별 설치 문서의 안내대로 설치합니다.
+
+운영체제별 전체 설치 과정:
+
+- [Windows: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/WINDOWS.md)
+- [macOS: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/MACOS.md)
+- [Ubuntu: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/UBUNTU.md)
+
+여기까지 끝나면 GitHub 저장소를 받는 1단계로 이동합니다.
+
 ### 1단계: 저장소 받기와 폴더 이동
 
 처음 받는 경우 다음 명령을 실행합니다.
