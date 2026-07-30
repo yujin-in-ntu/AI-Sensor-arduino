@@ -38,6 +38,8 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 설치가 끝났다면 모든 운영체제에서 공통으로 사용하는 실습 문서로 이동합니다.
 
 - [01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
+- [0단계: Python·NumPy 문법 한 줄 빈칸](docs/PYTHON_NUMPY_START.md)
+- [Softmax·역전파·추론 코드를 직접 채우는 AI 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
 
 ## 세 개의 Arduino 단계
@@ -67,8 +69,21 @@ python/
 ├─ train_camera_model.py      직접 촬영 데이터 CNN 학습
 ├─ train_mnist_model.py       MNIST 다운로드·학습
 ├─ run_inference_gui.py       Arduino 추론 결과 GUI
-└─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
+├─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
+└─ learning/
+   ├─ python_numpy_basics_exercise.py  완전 초보자용 문법 빈칸
+   ├─ check_python_numpy_basics.py     문법 빈칸 자동 확인
+   ├─ python_numpy_basics_answer.py    문법 실습 정답
+   ├─ nn_from_scratch_exercise.py  ReLU·Softmax·역전파 빈칸 실습
+   ├─ check_nn_exercise.py         TODO 1~8 자동 확인
+   ├─ nn_from_scratch_answer.py    실습 정답 코드
+   └─ nn_data.py                   MNIST·카메라 데이터 읽기
 ```
+
+CNN을 실행하는 것에서 한 단계 더 나아가 학습 원리를 코드로 이해하려면
+[신경망 코딩 실습](docs/AI_CODE_LAB.md)을 진행하세요. TensorFlow는 MNIST를
+내려받는 데만 사용하고, 순전파·Softmax·교차엔트로피·역전파·SGD·추론을
+NumPy 코드로 직접 완성합니다.
 
 ## 전체 흐름 한눈에 보기
 
@@ -85,6 +100,11 @@ PC에서 원본 확인 → 숫자별 20장 수집
     ↓
 MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 ```
+
+실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
+`model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
+추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
+`python/learning/`은 이 실제 파이프라인에 자동 연결되지 않는 원리 학습용 코드입니다.
 
 ## 가장 중요한 사용 규칙
 
