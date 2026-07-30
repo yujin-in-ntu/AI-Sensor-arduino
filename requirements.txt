@@ -1,0 +1,4 @@
+# TFLite Micro 변환 호환성을 위해 검증된 조합으로 고정합니다.
+tensorflow==2.15.1
+numpy==1.26.4
+pyserial==3.5
