@@ -43,6 +43,316 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 - [Softmax·역전파·추론 코드를 직접 채우는 AI 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
 
+## 처음부터 따라 하는 빠른 시작: 공개 예제 데이터 사용
+
+아래 순서는 카메라로 데이터를 새로 촬영하지 않고, 저장소에 포함된 숫자 `0~3`
+예제 원본과 전처리본으로 실제 CNN을 학습하고 Arduino에서 추론하는 방법입니다.
+카메라 수집이 되지 않는 학생도 1~5단계까지 진행할 수 있습니다.
+
+명령은 저장소 최상위 폴더의 터미널에서 **한 줄씩 입력하고 Enter**를 누릅니다.
+앞 명령이 끝난 뒤 다음 명령을 실행하세요. 명령 앞의 `PS C:\...>` 같은 터미널
+표시는 입력하지 않습니다.
+
+### 1단계: 저장소 받기와 폴더 이동
+
+처음 받는 경우 다음 명령을 실행합니다.
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
+Set-Location -LiteralPath .\AI-Sensor-arduino
+```
+
+macOS/Ubuntu:
+
+```bash
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
+cd AI-Sensor-arduino
+```
+
+이미 저장소를 받은 경우 `git clone`은 다시 실행하지 말고, 기존 저장소 폴더로만
+이동합니다. 현재 위치가 맞는지 다음 명령으로 확인할 수 있습니다.
+
+Windows:
+
+```powershell
+Get-Location
+Get-ChildItem
+```
+
+macOS/Ubuntu:
+
+```bash
+pwd
+ls
+```
+
+출력 목록에 `README.md`, `requirements.txt`, `python`, `arduino`, `data`가 있으면
+올바른 위치입니다.
+
+### 2단계: Python 가상환경과 라이브러리 설치
+
+Python 3.10 또는 3.11을 권장합니다. 먼저 버전을 확인합니다.
+
+Windows:
+
+```powershell
+python --version
+```
+
+가상환경을 만들고 필요한 라이브러리를 설치합니다.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Windows에서는 PowerShell 실행 정책 문제를 피하기 위해 `Activate.ps1`을 실행하지
+않습니다. 이후에도 항상 `.\.venv\Scripts\python.exe`로 가상환경 Python을 직접
+실행합니다.
+
+macOS/Ubuntu:
+
+```bash
+python3 --version
+python3 -m venv .venv
+./.venv/bin/python -m pip install --upgrade pip
+./.venv/bin/python -m pip install -r requirements.txt
+```
+
+설치 확인:
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import numpy, serial, tensorflow; print('Python ready')"
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python -c "import numpy, serial, tensorflow; print('Python ready')"
+```
+
+`Python ready`가 나오면 다음 단계로 이동합니다. TensorFlow 정보나 경고가 함께
+출력되어도 마지막에 `Python ready`가 있으면 설치가 완료된 것입니다.
+
+### 3단계: 사용할 데이터 방식 선택
+
+다음 두 방법 중 하나를 선택합니다.
+
+| 방법 | 사용할 폴더 | 언제 선택하나요? |
+|---|---|---|
+| A. 바로 학습 | `data/example_camera_digits` | 전처리된 28×28 데이터로 가장 빨리 학습할 때 |
+| B. 원본부터 다시 전처리 | `data/example_camera_full` | 전처리 과정을 실행하거나 코드를 수정해 비교할 때 |
+
+방법 A를 선택하면 별도 명령 없이 바로 4단계로 이동합니다.
+
+방법 B를 선택하면 160×120 원본 80장을 28×28로 다시 전처리합니다.
+
+Windows 한 줄 명령:
+
+```powershell
+.\.venv\Scripts\python.exe python\rebuild_camera_digits.py --digits 0123 --input data\example_camera_full --output work\example_camera_digits_rebuilt
+```
+
+macOS/Ubuntu 한 줄 명령:
+
+```bash
+./.venv/bin/python python/rebuild_camera_digits.py --digits 0123 --input data/example_camera_full --output work/example_camera_digits_rebuilt
+```
+
+정상 결과:
+
+```text
+숫자 0: 사용 20장, 제외 0장
+숫자 1: 사용 20장, 제외 0장
+숫자 2: 사용 20장, 제외 0장
+숫자 3: 사용 20장, 제외 0장
+```
+
+명령의 각 부분은 다음 뜻입니다.
+
+| 명령 부분 | 역할 |
+|---|---|
+| `.\.venv\Scripts\python.exe` | 이 프로젝트의 Windows 가상환경 Python 실행 |
+| `python\rebuild_camera_digits.py` | 저장된 원본을 다시 전처리하는 프로그램 |
+| `--digits 0123` | 숫자 0, 1, 2, 3만 처리 |
+| `--input data\example_camera_full` | 160×120 원본이 있는 입력 폴더 |
+| `--output work\example_camera_digits_rebuilt` | 새 28×28 결과를 저장할 폴더 |
+
+`work/`는 실험 중간 결과 폴더이며 GitHub에 올라가지 않습니다. 원래 공개 예제
+데이터도 변경하지 않습니다.
+
+### 4단계: 실제 CNN 학습
+
+방법 A를 선택했다면 다음 명령을 실행합니다.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\example_camera_digits --output-dir models\example_camera
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/example_camera_digits --output-dir models/example_camera
+```
+
+방법 B에서 원본을 다시 전처리했다면 다음 명령을 사용합니다.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data work\example_camera_digits_rebuilt --output-dir models\example_camera_rebuilt
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/train_camera_model.py --digits 0123 --data work/example_camera_digits_rebuilt --output-dir models/example_camera_rebuilt
+```
+
+이 명령은 다음 순서로 동작합니다.
+
+1. 숫자별 20장의 28×28 PGM을 읽습니다.
+2. 학습용 64장과 검증용 16장으로 분리합니다.
+3. 위치·밝기·노이즈가 조금 다른 증강 데이터를 만듭니다.
+4. `model.fit()`에서 CNN의 가중치를 학습합니다.
+5. 학습 모델을 INT8 TFLite로 변환합니다.
+6. Arduino가 읽을 `model_data.h`를 생성합니다.
+
+기본값은 최대 80 epoch이며 컴퓨터에 따라 몇 분 걸릴 수 있습니다. 출력이 잠시
+멈춘 것처럼 보여도 새 오류와 PowerShell 입력 프롬프트가 나오지 않았다면 기다립니다.
+
+성공하면 마지막에 다음 세 줄이 나옵니다.
+
+```text
+INT8 검증 정확도: ...%
+모델 크기: ... KiB
+Arduino 헤더 생성: .../arduino/camera_03_inference/model_data.h
+```
+
+검증 데이터가 16장뿐이므로 한 장 차이로 정확도가 6.25% 변할 수 있습니다.
+
+### 5단계: 생성된 파일 확인
+
+Windows:
+
+```powershell
+Test-Path -LiteralPath .\arduino\camera_03_inference\model_data.h
+Get-Item -LiteralPath .\arduino\camera_03_inference\model_data.h | Select-Object FullName, Length, LastWriteTime
+```
+
+첫 명령이 `True`를 출력하고 두 번째 명령에 파일 크기와 수정 시간이 나오면
+Arduino용 모델이 생성된 것입니다.
+
+macOS/Ubuntu:
+
+```bash
+test -f arduino/camera_03_inference/model_data.h && echo "model_data.h 생성 완료"
+ls -lh arduino/camera_03_inference/model_data.h
+```
+
+모델별 보관 파일도 다음 위치에 만들어집니다.
+
+```text
+models/example_camera/camera_digit_model.keras
+models/example_camera/camera_digit_int8.tflite
+models/example_camera/model_data.h
+```
+
+방법 B에서는 폴더 이름이 `models/example_camera_rebuilt`입니다.
+
+### 6단계: Arduino IDE에서 03 추론 업로드
+
+1. Arduino IDE 2를 실행합니다.
+2. `arduino/camera_03_inference/camera_03_inference.ino`를 엽니다.
+3. 이미 열려 있었다면 새 `model_data.h`를 다시 읽도록 스케치를 닫았다가 다시 엽니다.
+4. 보드를 `Arduino Nano 33 BLE`로 선택합니다.
+5. 연결된 포트를 선택합니다.
+6. 체크 표시 버튼으로 컴파일합니다.
+7. 화살표 버튼으로 업로드합니다.
+8. 업로드가 끝나면 Arduino IDE의 시리얼 모니터와 시리얼 플로터를 닫습니다.
+
+학습만 하고 03을 다시 업로드하지 않으면 보드는 이전 모델을 계속 사용합니다.
+
+### 7단계: 포트 확인과 추론 GUI 실행
+
+Windows 포트 확인:
+
+```powershell
+Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name
+```
+
+예를 들어 `COM5`로 나온 경우:
+
+```powershell
+.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+```
+
+macOS 포트 확인과 실행:
+
+```bash
+ls /dev/cu.usbmodem*
+./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
+```
+
+Ubuntu 포트 확인과 실행:
+
+```bash
+ls /dev/ttyACM*
+./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+```
+
+예시 포트는 자신의 컴퓨터에 표시된 값으로 바꿉니다. `PermissionError`,
+`Access is denied`, `Resource busy`가 나오면 Arduino IDE 시리얼 모니터와 다른
+Python 카메라 창을 모두 닫고 다시 실행합니다.
+
+GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`을 누릅니다. 실제
+추론은 Arduino 내부의 `camera_03_inference.ino`가 수행하고, GUI는 원본·28×28
+입력·숫자별 확률을 받아 표시합니다.
+
+### 8단계: 다시 학습하거나 모델을 바꿀 때
+
+`train_camera_model.py` 또는 `train_mnist_model.py`를 다시 실행하면
+`arduino/camera_03_inference/model_data.h`가 새 모델로 교체됩니다. 그때마다
+반드시 다음 순서를 반복합니다.
+
+```text
+학습 완료
+→ model_data.h 수정 시간 확인
+→ Arduino IDE에서 03 닫았다가 다시 열기
+→ 03 컴파일·업로드
+→ 시리얼 모니터 닫기
+→ run_inference_gui.py 실행
+```
+
+### PowerShell의 백틱(`)은 무엇인가요?
+
+다른 문서에서 다음처럼 줄 끝에 백틱이 붙은 명령을 볼 수 있습니다.
+
+```powershell
+.\.venv\Scripts\python.exe python\rebuild_camera_digits.py `
+  --digits 0123 `
+  --input data\example_camera_full `
+  --output work\example_camera_digits_rebuilt
+```
+
+백틱은 “명령이 다음 줄에 계속된다”는 PowerShell 표시입니다. 백틱 뒤에 공백이
+있으면 작동하지 않을 수 있습니다. 처음 실습에서는 위 3단계에 적힌 **한 줄 명령**을
+복사하는 것이 가장 안전합니다. 한 줄 명령과 여러 줄 명령의 동작은 같습니다.
+
+### 카메라나 보드가 불량한 경우
+
+- 카메라 수집만 안 되면 공개 예제 데이터로 1~6단계를 진행할 수 있습니다.
+- 보드 연결도 안 되면 1~5단계의 PC 학습과 모델 생성까지 진행할 수 있습니다.
+- 실제 실시간 카메라 추론인 6~7단계는 정상 Arduino와 카메라가 필요합니다.
+- 상세 명령과 대체 경로는 [공개 예제 데이터 실습](docs/EXAMPLE_DATA.md)을 확인하세요.
+
 ## 세 개의 Arduino 단계
 
 학생이 열어야 하는 Arduino 스케치는 세 개뿐입니다.
