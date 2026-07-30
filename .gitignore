@@ -1,2 +1,29 @@
-﻿work/
+# Codex 작업 중간 산출물
+work/
 outputs/
+.arduino-build/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# 개인 촬영/동작 데이터와 학습 바이너리
+data/*.csv
+data/camera_digits/
+data/camera_digits_clean*/
+data/camera_full/
+data/camera_full_v2/
+data/camera_digits_v2/
+models/
+!data/.gitkeep
+
+# 학습 스크립트가 생성하는 큰 모델 배열
+arduino/03_inference/model_data.h
+arduino/camera_03_inference/model_data.h
+
+# IDE/운영체제
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
