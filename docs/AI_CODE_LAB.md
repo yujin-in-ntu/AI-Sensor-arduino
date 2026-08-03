@@ -163,16 +163,17 @@ arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 ```
 
 `____ARD`를 검색하면 TODO 8개를 찾을 수 있습니다. 긴 카메라 전처리와 시리얼
-통신은 완성된 상태이고 다음 여섯 함수만 학생이 완성합니다.
+통신은 완성된 상태입니다. 별도로 만든 연습 함수가 아니라 완성본에서도 실제로
+사용하는 다음 두 함수 안의 수식을 학생이 직접 완성합니다.
 
 ```cpp
-normalizePixel(...)
-quantizeInput(...)
-dequantizeOutput(...)
-softmaxNumerator(...)
-normalizeProbability(...)
-updateBest(...)
+prepareInput()    // 입력 정규화와 INT8 양자화
+sendPrediction() // 역양자화, Softmax, 최댓값 선택
 ```
+
+학생이 빈칸을 채운 뒤 이 스케치를 보드에 업로드하면 작성한 문장이 실제 카메라
+추론 때 그대로 실행됩니다. `interpreter->Invoke()`도 같은 파일의 `loop()`에서
+호출되므로 별도의 모의 계산 코드가 아닙니다.
 
 ### 2. ARD1~ARD2: 입력 정규화와 양자화
 
@@ -183,7 +184,8 @@ updateBest(...)
 ```
 
 `=`는 값을 저장하고 `/`는 나눗셈을 합니다. `255.0f`처럼 실수임을 표시해야
-Arduino에서 의도한 실수 나눗셈이 됩니다.
+Arduino에서 의도한 실수 나눗셈이 됩니다. `a /= b`는 `a = a / b`를 짧게 쓴
+복합 대입 연산입니다.
 
 ### 3. ARD3: 출력 역양자화
 
@@ -290,5 +292,6 @@ arduino/camera_03_inference/camera_03_inference.ino
 - C 헤더 바이트 배열 생성
 
 이 부분은 실제로 사용되지만 첫 수업에서 빈칸으로 만들면 AI 학습보다 배열 경계,
-메모리, 통신 오류 해결에 시간이 더 많이 듭니다. 학생이 작성한 핵심 함수는 이미
-이 완성 코드에 연결되어 있으므로 실습 결과는 실제 모델과 보드에서 실행됩니다.
+메모리, 통신 오류 해결에 시간이 더 많이 듭니다. 학생이 작성한 핵심 문장은
+`Invoke()` 전후의 실제 텐서 처리 흐름 안에 있으므로 실제 모델과 보드에서
+그대로 실행됩니다.

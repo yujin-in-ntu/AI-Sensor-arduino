@@ -35,10 +35,10 @@ ARDUINO_HINTS = {
     "____ARD2____": "정규화 값을 scale로 나누고 zeroPoint를 더하는 식",
     "____ARD3____": "INT8 출력에서 zeroPoint를 빼고 scale을 곱하는 식",
     "____ARD4____": "큰 exp 값을 막도록 maxLogit을 뺀 안정적인 지수식",
-    "____ARD5____": "Softmax 분자를 전체 합으로 나누는 식",
+    "____ARD5____": "현재 probabilities[i]를 total로 나누는 복합 대입 연산",
     "____ARD6____": "현재 확률이 지금까지 최고 확률보다 큰지 비교하는 조건",
-    "____ARD7____": "최고 확률 변수를 현재 probability로 갱신하는 문장",
-    "____ARD8____": "최고 클래스 위치를 현재 index로 갱신하는 문장",
+    "____ARD7____": "bestProbability를 현재 probabilities[i]로 갱신하는 문장",
+    "____ARD8____": "bestIndex를 현재 반복 위치 i로 갱신하는 문장",
 }
 
 
@@ -121,16 +121,15 @@ def check_python_behavior() -> None:
 def check_arduino_structure() -> None:
     text = ARDUINO_EXERCISE.read_text(encoding="utf-8")
     required = [
-        "normalizePixel",
-        "quantizeInput",
-        "dequantizeOutput",
-        "softmaxNumerator",
-        "updateBest",
+        "bool prepareInput()",
+        "void sendPrediction(bool guiMode)",
+        "inputTensor->data.int8[i]",
+        "outputTensor->data.int8[i]",
         "interpreter->Invoke()",
     ]
     missing = [name for name in required if name not in text]
     if missing:
-        raise AssertionError("Arduino 핵심 함수가 없습니다: " + ", ".join(missing))
+        raise AssertionError("Arduino 실제 추론 흐름이 없습니다: " + ", ".join(missing))
     print("Arduino 핵심 빈칸 완료! Arduino IDE의 컴파일 버튼으로 최종 확인하세요.")
 
 

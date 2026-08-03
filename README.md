@@ -850,7 +850,7 @@ arduino/
 │  ├─ camera_03_inference.ino   보드에서 CNN 추론 완성본
 │  └─ model_data_placeholder.h  아직 모델이 없을 때 사용하는 자리표시자
 └─ camera_03_inference_exercise/
-   ├─ camera_03_inference_exercise.ino  양자화·Softmax·argmax 학생용
+   ├─ camera_03_inference_exercise.ino  실제 추론 수식 8곳을 채우는 학생용 복사본
    └─ model_data_placeholder.h          모델 생성 전 자리표시자
 ```
 

@@ -1,7 +1,8 @@
 /*
-  실제 코드 빈칸 실습: 종이에 쓴 숫자를 촬영해 보드 안에서 추론합니다.
-  양자화, 역양자화, Softmax, 최댓값 선택의 TODO 8개를 채웁니다.
-  완성하면 기존 run_inference_gui.py와 그대로 연결됩니다.
+  실제 03 추론 코드의 학생용 복사본입니다.
+  완성본에서 실제로 실행되는 양자화, 역양자화, Softmax, 최댓값 선택 문장
+  8개만 빈칸으로 두었습니다. 빈칸을 채워 업로드하면 학생이 작성한 문장이
+  보드의 실제 카메라 추론에 사용되고 run_inference_gui.py와 그대로 연결됩니다.
 */
 #include <Arduino_OV767X.h>
 #include <math.h>
@@ -267,60 +268,6 @@ void makeDigitImage() {
   }
 }
 
-// 아래 여섯 함수가 학생이 직접 작성하는 실제 추론 수학입니다.
-//
-// C++ 문법 미니 노트
-// - 함수는 반환자료형 함수이름(매개변수) { return 식; }으로 만듭니다.
-// - byte와 int8_t는 정수, float는 소수, int는 일반 정수입니다.
-// - 객체.멤버는 객체 안의 값에 접근하고, 함수(값)는 함수를 호출합니다.
-// - float&처럼 &가 붙은 매개변수를 바꾸면 호출한 쪽 변수도 함께 바뀝니다.
-
-float normalizePixel(byte pixel) {
-  // TODO ARD1: 0~255 픽셀을 0~1 실수로 바꿉니다.
-  // 힌트: 정수 나눗셈이 되지 않도록 255 뒤에 .0f가 붙은 실수를 사용합니다.
-  return ____ARD1____;
-}
-
-int quantizeInput(float normalized, float scale, int zeroPoint) {
-  // TODO ARD2: 0~1 실수를 모델 입력 INT8 좌표로 옮깁니다.
-  // 힌트: normalized를 scale로 나눈 뒤 roundf로 반올림하고 zeroPoint를 더합니다.
-  return ____ARD2____;
-}
-
-float dequantizeOutput(int8_t value, float scale, int zeroPoint) {
-  // TODO ARD3: 모델의 INT8 출력을 다시 실수 logits로 되돌립니다.
-  // 힌트: value에서 zeroPoint를 먼저 빼고 scale을 곱합니다.
-  return ____ARD3____;
-}
-
-float softmaxNumerator(float logit, float maxLogit) {
-  // TODO ARD4: Softmax 분자를 계산합니다.
-  // 힌트: expf(logit)을 바로 계산하면 수가 너무 커질 수 있어 maxLogit을 뺍니다.
-  return ____ARD4____;
-}
-
-float normalizeProbability(float numerator, float total) {
-  // TODO ARD5: 모든 분자의 합이 1이 되도록 확률로 바꿉니다.
-  // 힌트: 나눗셈 / 를 사용합니다.
-  return ____ARD5____;
-}
-
-void updateBest(
-    float probability,
-    int index,
-    float& bestProbability,
-    int& bestIndex) {
-  // TODO ARD6~ARD8: 지금까지 가장 큰 확률과 그 위치를 갱신합니다.
-  // 힌트
-  // - if (조건) { 문장; } 형태로 조건이 참일 때만 실행합니다.
-  // - 비교에는 >, 값 저장에는 = 를 사용합니다.
-  // - probability가 더 크다면 bestProbability와 bestIndex 두 변수를 갱신합니다.
-  if (____ARD6____) {
-    ____ARD7____;
-    ____ARD8____;
-  }
-}
-
 bool prepareInput() {
   if (!inputTensor || inputTensor->type != kTfLiteInt8 ||
       inputTensor->bytes != IMAGE_SIZE * IMAGE_SIZE) {
@@ -331,8 +278,13 @@ bool prepareInput() {
   float scale = inputTensor->params.scale;
   int zeroPoint = inputTensor->params.zero_point;
   for (int i = 0; i < IMAGE_SIZE * IMAGE_SIZE; ++i) {
-    float normalized = normalizePixel(digitImage[i]);
-    int value = quantizeInput(normalized, scale, zeroPoint);
+    // TODO ARD1: 실제 입력 픽셀을 0~1 실수로 정규화합니다.
+    // 힌트: 정수 나눗셈을 피하려면 255.0f처럼 실수를 사용합니다.
+    float normalized = ____ARD1____;
+
+    // TODO ARD2: 정규화한 값을 모델 입력 INT8 좌표로 양자화합니다.
+    // 힌트: normalized / scale을 roundf()로 반올림한 뒤 zeroPoint를 더합니다.
+    int value = ____ARD2____;
     if (value < -128) value = -128;
     if (value > 127) value = 127;
     inputTensor->data.int8[i] = (int8_t)value;
@@ -344,25 +296,33 @@ void sendPrediction(bool guiMode) {
   float logits[10];
   float maxLogit = -1.0e30f;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    logits[i] = dequantizeOutput(
-        outputTensor->data.int8[i],
-        outputTensor->params.scale,
-        outputTensor->params.zero_point);
+    // TODO ARD3: 실제 INT8 모델 출력을 다시 실수 logit으로 역양자화합니다.
+    // 힌트: (INT8값 - zeroPoint) * scale 순서입니다.
+    logits[i] = ____ARD3____;
     if (logits[i] > maxLogit) maxLogit = logits[i];
   }
 
   float probabilities[10];
   float total = 0;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    probabilities[i] = softmaxNumerator(logits[i], maxLogit);
+    // TODO ARD4: 실제 Softmax 분자를 계산합니다.
+    // 힌트: 값이 너무 커지지 않도록 expf(logits[i] - maxLogit)을 사용합니다.
+    probabilities[i] = ____ARD4____;
     total += probabilities[i];
   }
 
   int bestIndex = 0;
   float bestProbability = 0;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    probabilities[i] = normalizeProbability(probabilities[i], total);
-    updateBest(probabilities[i], i, bestProbability, bestIndex);
+    // TODO ARD5: 모든 클래스 확률의 합이 1이 되게 만듭니다.
+    probabilities[i] ____ARD5____;
+
+    // TODO ARD6~ARD8: 실제 예측 숫자가 될 가장 큰 확률의 위치를 찾습니다.
+    // 힌트: 비교에는 >, 값 저장에는 = 를 사용합니다.
+    if (____ARD6____) {
+      ____ARD7____;
+      ____ARD8____;
+    }
   }
 
   if (guiMode) {
