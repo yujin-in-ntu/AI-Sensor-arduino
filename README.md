@@ -382,11 +382,31 @@ arduino/camera_01_check/camera_01_check.ino
 
 1. 체크 표시 버튼으로 컴파일합니다.
 2. 화살표 버튼으로 보드에 업로드합니다.
-3. 시리얼 모니터를 열고 `115200 baud`를 선택합니다.
-4. 입력창에 `p`를 입력하고 전송합니다.
+3. Arduino IDE의 시리얼 모니터와 시리얼 플로터가 열려 있다면 닫습니다.
+4. 터미널에서 운영체제에 맞는 명령을 실행합니다.
 
-28줄짜리 문자 그림이 나오면 카메라 통신에 성공한 것입니다. 이 화면은 숫자를
-정밀하게 확인하는 용도가 아니므로 픽셀이 거칠어도 다음 단계로 이동합니다.
+Windows 예시:
+
+```powershell
+.\.venv\Scripts\python.exe python\check_camera_terminal.py --port COM5
+```
+
+macOS:
+
+```bash
+./.venv/bin/python python/check_camera_terminal.py --port /dev/cu.usbmodem1101
+```
+
+Ubuntu:
+
+```bash
+./.venv/bin/python python/check_camera_terminal.py --port /dev/ttyACM0
+```
+
+프로그램이 자동으로 보드에 `PING`과 `CAPTURE`를 보내고 28줄짜리 문자 그림을
+터미널에 출력합니다. `카메라 응답 정상`이 나오면 카메라 통신에 성공한 것입니다.
+이 화면은 숫자를 정밀하게 확인하는 용도가 아니므로 픽셀이 거칠어도 다음 단계로
+이동합니다.
 
 ### 5단계: 02 Full View에서 자기 숫자 촬영
 
@@ -826,6 +846,7 @@ arduino/
 ```text
 python/
 ├─ camera_preprocess.py       종이·숫자 탐지와 28×28 전처리
+├─ check_camera_terminal.py   01 카메라 응답·문자 영상을 터미널에서 확인
 ├─ preview_camera.py          160×120 원본 미리보기 GUI
 ├─ collect_camera_data.py     Full View 데이터 수집 GUI
 ├─ train_camera_model.py      직접 촬영 데이터 CNN 학습

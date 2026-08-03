@@ -83,14 +83,31 @@ arduino/camera_01_check/camera_01_check.ino
 4. 체크 표시 버튼으로 컴파일합니다.
 5. 화살표 버튼으로 업로드합니다.
 
-### 문자 미리보기 확인
+### 터미널에서 문자 미리보기 확인
 
-1. Arduino IDE의 시리얼 모니터를 엽니다.
-2. 전송 속도를 `115200 baud`로 설정합니다.
-3. 메시지 입력창에 `p`를 입력하고 전송합니다.
-4. 28줄짜리 문자 그림이 나오면 카메라 통신이 성공한 것입니다.
+Arduino IDE 시리얼 모니터와 시리얼 플로터를 닫고 실행합니다.
 
-문자 그림은 정밀한 영상 확인용이 아닙니다. 카메라가 응답하는지만 확인하고 다음 단계로 이동합니다.
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\check_camera_terminal.py --port COM5
+```
+
+macOS:
+
+```bash
+./.venv/bin/python python/check_camera_terminal.py --port /dev/cu.usbmodem1101
+```
+
+Ubuntu:
+
+```bash
+./.venv/bin/python python/check_camera_terminal.py --port /dev/ttyACM0
+```
+
+프로그램이 자동으로 `PING`과 `CAPTURE`를 전송합니다. `카메라 응답 정상`과
+28줄짜리 문자 그림이 나오면 성공입니다. 문자 그림은 정밀한 영상 확인용이
+아니므로 카메라가 응답하는지만 확인하고 다음 단계로 이동합니다.
 
 ## 2단계: Full View 미리보기와 데이터 수집
 

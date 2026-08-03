@@ -1,6 +1,6 @@
 /*
   카메라 1단계: OV7675 영상이 정상인지 28x28 문자 그림으로 확인합니다.
-  Tiny Machine Learning Shield에 카메라를 꽂은 뒤 시리얼 모니터에서 p를 보냅니다.
+  PC의 check_camera_terminal.py가 명령을 보내고 터미널에 결과를 표시합니다.
 */
 #include <Arduino_OV767X.h>
 
@@ -49,16 +49,25 @@ void setup() {
     while (true) delay(1000);
   }
  // Camera.testPattern();
-  Serial.println("카메라 준비 완료. p를 입력하면 28x28 미리보기를 표시합니다.");
+  Serial.println("카메라 준비 완료. PC 터미널 확인 프로그램을 실행하세요.");
 }
 
 void loop() {
   if (!Serial.available()) return;
-  char command = Serial.read();
-  while (Serial.available()) Serial.read();
-  if (command != 'p' && command != 'P') return;
+  String command = Serial.readStringUntil('\n');
+  command.trim();
+
+  // Python 프로그램이 올바른 01 스케치가 실행 중인지 확인합니다.
+  if (command == "PING") {
+    Serial.println("HELLO,CAMERA_CHECK");
+    return;
+  }
+
+  // p/P는 기존 시리얼 모니터 사용자를 위해 계속 지원합니다.
+  if (command != "CAPTURE" && command != "p" && command != "P") return;
 
   makeDigitImage();
+  Serial.println("BEGIN_ASCII,28,28");
   printAsciiImage();
-  Serial.println("다시 촬영하려면 p를 입력하세요.");
+  Serial.println("END_ASCII");
 }
