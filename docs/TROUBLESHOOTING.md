@@ -12,6 +12,37 @@
 6. `.venv`의 Python을 사용했는가?
 7. 모델 학습 후 `03`을 다시 업로드했는가?
 
+## 어떤 폴더에서 실행해야 하는지 모르겠음
+
+권장 경로는 GitHub 프로젝트와 Arduino 라이브러리를 완전히 분리합니다.
+
+```text
+Windows 프로젝트:          C:\Users\<사용자이름>\Projects\AI-Sensor-arduino
+Windows Arduino 라이브러리: C:\Users\<사용자이름>\Documents\Arduino\libraries
+
+macOS/Ubuntu 프로젝트:          ~/Projects/AI-Sensor-arduino
+macOS/Ubuntu Arduino 라이브러리: ~/Documents/Arduino/libraries
+```
+
+Python 학습·전처리·GUI 명령은 프로젝트 폴더에서 실행합니다. Arduino 라이브러리
+폴더에서는 실행하지 않습니다. 자세한 구분은 [설치 경로와 작업 폴더 기준](PATHS.md)을
+확인하세요.
+
+Windows 확인:
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Test-Path -LiteralPath .\requirements.txt
+Test-Path -LiteralPath .\.venv\Scripts\python.exe
+```
+
+macOS/Ubuntu 확인:
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+test -f requirements.txt && test -x .venv/bin/python && echo "경로 정상"
+```
+
 ## `py` 또는 `python`을 찾을 수 없음
 
 예시:

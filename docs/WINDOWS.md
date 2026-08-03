@@ -2,6 +2,10 @@
 
 이 문서는 Windows 10/11, PowerShell, Arduino IDE 2를 기준으로 합니다. 명령은 한 줄씩 복사해 실행하세요.
 
+먼저 [설치 경로와 작업 폴더 기준](PATHS.md)의 Windows 경로표를 확인하세요.
+이 문서는 프로젝트를 `$env:USERPROFILE\Projects\AI-Sensor-arduino`, Arduino
+Sketchbook을 `$env:USERPROFILE\Documents\Arduino`로 고정합니다.
+
 ## 1. 프로그램 설치
 
 ### 1-1. Git 설치
@@ -18,7 +22,7 @@ git --version
 
 ### 1-2. Python 3.11 설치
 
-1. [Python 공식 다운로드](https://www.python.org/downloads/)에서 Python 3.11 64-bit 설치 프로그램을 받습니다.
+1. [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)에서 `Windows installer (64-bit)`를 받습니다.
 2. 설치 첫 화면에서 `Add python.exe to PATH`를 체크합니다.
 3. 설치가 끝나면 새 PowerShell을 열고 확인합니다.
 
@@ -28,34 +32,54 @@ python --version
 
 권장 결과는 `Python 3.11.x`입니다. 이 프로젝트는 Python 3.10도 지원하지만 Python 3.12 이상은 고정된 TensorFlow 2.15.1과 맞지 않을 수 있습니다.
 
+기본 사용자 설치 경로는 보통 다음과 같습니다.
+
+```text
+C:\Users\사용자이름\AppData\Local\Programs\Python\Python311\python.exe
+```
+
+실제 실행 경로를 확인합니다.
+
+```powershell
+Get-Command python | Select-Object Source
+```
+
 `py` 명령이 없어도 괜찮습니다. 이 문서는 `python`을 사용합니다.
 
 ### 1-3. Arduino IDE 2 설치
 
-1. [Arduino IDE 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 Windows용 최신 Arduino IDE 2를 설치합니다.
+1. [Arduino IDE 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 Windows용 Arduino IDE 2를 설치합니다. `All users`를 선택할 수 있으면 `C:\Program Files\Arduino IDE`에 설치됩니다. `Only me`를 선택하면 `$env:LOCALAPPDATA\Programs\Arduino IDE`에 설치되며 이것도 정상입니다.
 2. Arduino IDE를 한 번 실행합니다.
-3. `File > Preferences`에서 `Sketchbook location`을 확인합니다. 기본값은 보통 다음과 같습니다.
+3. PowerShell에서 Sketchbook과 라이브러리 폴더를 미리 만듭니다.
+
+```powershell
+New-Item -ItemType Directory -Path "$env:USERPROFILE\Documents\Arduino\libraries" -Force
+```
+
+4. `File > Preferences`의 `Sketchbook location`을 다음 경로로 직접 설정합니다.
 
 ```text
 C:\Users\사용자이름\Documents\Arduino
 ```
 
-라이브러리는 이 Sketchbook 폴더 아래의 `libraries`에 설치해야 합니다.
+라이브러리는 이 Sketchbook 폴더 아래의 `libraries`에 설치해야 합니다. GitHub
+프로젝트는 이 폴더가 아니라 `C:\Users\사용자이름\Projects` 아래에 둡니다.
 
 ## 2. GitHub 저장소 받기
 
-PowerShell을 열고 원하는 작업 폴더로 이동합니다. 다음 예시는 `Documents`를 사용합니다.
+PowerShell을 열고 프로젝트 전용 `Projects` 폴더를 만든 뒤 전체 경로를 지정해
+복제합니다. 현재 터미널 위치와 관계없이 항상 같은 곳에 만들어집니다.
 
 ```powershell
-Set-Location -LiteralPath "$env:USERPROFILE\Documents"
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
-Set-Location -LiteralPath "$env:USERPROFILE\Documents\AI-Sensor-arduino"
+New-Item -ItemType Directory -Path "$env:USERPROFILE\Projects" -Force
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 ```
 
 이미 복제했다면 새로 복제하지 말고 기존 폴더에서 업데이트합니다.
 
 ```powershell
-Set-Location -LiteralPath "저장소의 실제 경로"
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 git pull
 ```
 
@@ -63,10 +87,13 @@ git pull
 
 ```powershell
 Get-Location
-Get-ChildItem
+Test-Path -LiteralPath .\README.md
+Test-Path -LiteralPath .\requirements.txt
+Test-Path -LiteralPath .\arduino
+Test-Path -LiteralPath .\python
 ```
 
-`arduino`, `python`, `docs`, `requirements.txt`가 보여야 합니다.
+경로와 네 개의 `True`가 보여야 합니다.
 
 ## 3. Python 환경 만들기
 

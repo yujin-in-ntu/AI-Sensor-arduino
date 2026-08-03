@@ -2,6 +2,10 @@
 
 Ubuntu는 Python 명령이 macOS와 비슷하지만 시리얼 포트 권한 설정이 추가로 필요합니다. 처음 수업 환경이라면 Ubuntu 22.04와 Python 3.10/3.11 조합을 권장합니다.
 
+먼저 [설치 경로와 작업 폴더 기준](PATHS.md)의 Ubuntu 경로표를 확인하세요.
+이 문서는 프로젝트를 `~/Projects/AI-Sensor-arduino`, Arduino Sketchbook을
+`~/Documents/Arduino`로 고정합니다.
+
 ## 1. 기본 도구 설치
 
 ```bash
@@ -21,26 +25,42 @@ Python은 3.10 또는 3.11이어야 합니다. Ubuntu 24.04의 기본 Python 3.1
 
 ## 2. Arduino IDE 2 설치
 
-1. [Arduino IDE 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 Linux AppImage 또는 ZIP을 받습니다.
-2. AppImage를 받았다면 실행 권한을 줍니다.
+1. [Arduino IDE 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 Linux AppImage를 받습니다.
+2. `~/Applications` 폴더를 만들고 AppImage를 `arduino-ide.AppImage`라는 고정 이름으로 옮깁니다.
 
 ```bash
-cd ~/Downloads
-chmod +x arduino-ide_*_Linux_64bit.AppImage
-./arduino-ide_*_Linux_64bit.AppImage
+mkdir -p ~/Applications
+mkdir -p ~/Documents/Arduino/libraries
+mv ~/Downloads/arduino-ide_*_Linux_64bit.AppImage ~/Applications/arduino-ide.AppImage
+chmod +x ~/Applications/arduino-ide.AppImage
+~/Applications/arduino-ide.AppImage
 ```
 
 FUSE 관련 오류가 나면 공식 설치 안내의 Linux 문제 해결 절을 확인합니다.
+Arduino IDE의 `File > Preferences > Sketchbook location`을
+`~/Documents/Arduino`로 설정합니다.
 
 ## 3. 저장소 받기
 
 ```bash
-cd ~/Documents
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
-cd AI-Sensor-arduino
+mkdir -p ~/Projects
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git ~/Projects/AI-Sensor-arduino
+cd ~/Projects/AI-Sensor-arduino
 ```
 
-`~/Documents`가 없다면 먼저 `mkdir -p ~/Documents`를 실행합니다.
+이미 복제했다면 `git clone`을 다시 실행하지 않습니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+git pull
+```
+
+경로를 확인합니다.
+
+```bash
+pwd
+test -f README.md && test -f requirements.txt && echo "프로젝트 경로 정상"
+```
 
 ## 4. Python 환경 만들기
 
@@ -69,13 +89,14 @@ Arduino IDE에서:
 Arduino IDE를 닫고 실행합니다.
 
 ```bash
-mkdir -p ~/Arduino/libraries
-cd ~/Arduino/libraries
+mkdir -p ~/Documents/Arduino/libraries
+cd ~/Documents/Arduino/libraries
 git clone https://github.com/arduino-libraries/Arduino_OV767X.git Arduino_OV767X
 git clone https://github.com/tensorflow/tflite-micro-arduino-examples.git Arduino_TensorFlowLite
 ```
 
-Arduino IDE의 Sketchbook 위치가 `~/Documents/Arduino`라면 그 아래의 `libraries`를 사용해야 합니다. `File > Preferences`에서 실제 Sketchbook 위치를 먼저 확인하세요.
+라이브러리 경로와 Arduino IDE의 Sketchbook 위치가 모두 `~/Documents/Arduino`를
+가리켜야 합니다. 프로젝트 저장소는 `~/Projects/AI-Sensor-arduino`에 별도로 둡니다.
 
 ## 7. 시리얼 포트 권한
 

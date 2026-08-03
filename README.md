@@ -33,6 +33,7 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 - [Windows 설치](docs/WINDOWS.md)
 - [macOS 설치](docs/MACOS.md)
 - [Ubuntu 설치](docs/UBUNTU.md)
+- [프로그램·프로젝트·Arduino 라이브러리 정확한 경로](docs/PATHS.md)
 - [Arduino CLI로 컴파일·업로드](docs/ARDUINO_CLI.md) — 선택 사항
 
 설치가 끝났다면 모든 운영체제에서 공통으로 사용하는 실습 문서로 이동합니다.
@@ -57,6 +58,22 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 
 이미 세 프로그램이 모두 설치되어 있다면 버전만 확인하고 1단계로 이동합니다.
 수업용 PC를 처음 준비한다면 아래 순서대로 설치하세요.
+
+#### 0-0. 먼저 폴더 역할을 분리합니다
+
+GitHub 프로젝트와 Arduino 라이브러리를 같은 폴더에 넣지 않습니다. 이 문서의
+권장 경로는 다음과 같습니다.
+
+| 용도 | Windows | macOS/Ubuntu |
+|---|---|---|
+| GitHub 프로젝트 | `C:\Users\<사용자이름>\Projects\AI-Sensor-arduino` | `~/Projects/AI-Sensor-arduino` |
+| 프로젝트 가상환경 | `...\AI-Sensor-arduino\.venv` | `.../AI-Sensor-arduino/.venv` |
+| Arduino Sketchbook | `C:\Users\<사용자이름>\Documents\Arduino` | `~/Documents/Arduino` |
+| Arduino 라이브러리 | `...\Documents\Arduino\libraries` | `~/Documents/Arduino/libraries` |
+
+Arduino IDE와 Python 본체는 운영체제의 프로그램 영역에 설치하고, 촬영 데이터와
+모델은 GitHub 프로젝트 안에 둡니다. 전체 경로표와 확인 명령은
+[설치 경로와 작업 폴더 기준](docs/PATHS.md)을 먼저 확인하세요.
 
 #### 0-1. Git 확인 및 설치
 
@@ -112,10 +129,11 @@ macOS에서는 `python3 --version`을 사용합니다. Ubuntu를 포함한 자�
 
 1. [Arduino IDE 2 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 운영체제에 맞는 Arduino IDE 2를 설치합니다.
 2. Arduino IDE 2를 실행합니다.
-3. 왼쪽 `Boards Manager`에서 `Arduino Mbed OS Nano Boards`를 검색해 설치합니다.
-4. Nano 33 BLE Sense Lite를 데이터 통신용 USB 케이블로 연결합니다.
-5. IDE 상단 보드 메뉴에서 `Arduino Nano 33 BLE`와 연결된 포트를 선택합니다.
-6. 카메라와 TensorFlow Lite 라이브러리는 운영체제별 설치 문서의 안내대로 설치합니다.
+3. 설정에서 Sketchbook 위치를 Windows는 `C:\Users\<사용자이름>\Documents\Arduino`, macOS/Ubuntu는 `~/Documents/Arduino`로 지정합니다.
+4. 왼쪽 `Boards Manager`에서 `Arduino Mbed OS Nano Boards`를 검색해 설치합니다.
+5. Nano 33 BLE Sense Lite를 데이터 통신용 USB 케이블로 연결합니다.
+6. IDE 상단 보드 메뉴에서 `Arduino Nano 33 BLE`와 연결된 포트를 선택합니다.
+7. 카메라와 TensorFlow Lite 라이브러리는 운영체제별 설치 문서의 안내대로 설치합니다.
 
 운영체제별 전체 설치 과정:
 
@@ -132,36 +150,55 @@ macOS에서는 `python3 --version`을 사용합니다. Ubuntu를 포함한 자�
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
-Set-Location -LiteralPath .\AI-Sensor-arduino
+New-Item -ItemType Directory -Path "$env:USERPROFILE\Projects" -Force
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 ```
 
 macOS/Ubuntu:
 
 ```bash
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
-cd AI-Sensor-arduino
+mkdir -p ~/Projects
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git ~/Projects/AI-Sensor-arduino
+cd ~/Projects/AI-Sensor-arduino
 ```
 
 이미 저장소를 받은 경우 `git clone`은 다시 실행하지 말고, 기존 저장소 폴더로만
 이동합니다. 현재 위치가 맞는지 다음 명령으로 확인할 수 있습니다.
 
+권장 경로에 이미 받은 경우 먼저 이동합니다.
+
+Windows:
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+```
+
+macOS/Ubuntu:
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+```
+
 Windows:
 
 ```powershell
 Get-Location
-Get-ChildItem
+Test-Path -LiteralPath .\README.md
+Test-Path -LiteralPath .\requirements.txt
+Test-Path -LiteralPath .\arduino
+Test-Path -LiteralPath .\python
 ```
 
 macOS/Ubuntu:
 
 ```bash
 pwd
-ls
+test -f README.md && test -f requirements.txt && test -d arduino && test -d python && echo "프로젝트 경로 정상"
 ```
 
-출력 목록에 `README.md`, `requirements.txt`, `python`, `arduino`, `data`가 있으면
-올바른 위치입니다.
+Windows에서는 프로젝트 경로와 네 개의 `True`, macOS/Ubuntu에서는
+`프로젝트 경로 정상`이 나오면 올바른 위치입니다.
 
 ### 2단계: Python 가상환경과 라이브러리 설치
 

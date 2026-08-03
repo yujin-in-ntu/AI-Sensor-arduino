@@ -2,6 +2,10 @@
 
 이 문서는 Intel Mac과 Apple Silicon Mac에서 Terminal, Arduino IDE 2를 사용하는 방법을 설명합니다.
 
+먼저 [설치 경로와 작업 폴더 기준](PATHS.md)의 macOS 경로표를 확인하세요.
+이 문서는 프로젝트를 `~/Projects/AI-Sensor-arduino`, Arduino Sketchbook을
+`~/Documents/Arduino`로 고정합니다.
+
 ## 1. Git 준비
 
 Terminal을 열고 확인합니다.
@@ -42,23 +46,36 @@ python3 -m tkinter
 
 1. [Arduino IDE 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 자신의 Mac에 맞는 버전을 받습니다.
 2. Apple Silicon은 ARM64, Intel Mac은 Intel 버전을 선택합니다.
-3. Arduino IDE를 Applications 폴더로 옮기고 실행합니다.
+3. Arduino IDE를 Applications 폴더로 옮겨 `/Applications/Arduino IDE.app`에 설치하고 실행합니다.
 4. macOS가 실행 여부를 묻는다면 `Open`을 선택합니다.
-5. `Arduino IDE > Settings`에서 Sketchbook 위치를 확인합니다. 기본 위치는 보통 `~/Documents/Arduino`입니다.
+5. Terminal에서 Sketchbook과 라이브러리 폴더를 만듭니다.
+
+```bash
+mkdir -p ~/Documents/Arduino/libraries
+```
+
+6. `Arduino IDE > Settings`에서 Sketchbook 위치를 `~/Documents/Arduino`로 설정합니다.
 
 ## 4. 저장소 받기
 
 ```bash
-cd ~/Documents
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
-cd AI-Sensor-arduino
+mkdir -p ~/Projects
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git ~/Projects/AI-Sensor-arduino
+cd ~/Projects/AI-Sensor-arduino
 ```
 
 이미 복제했다면:
 
 ```bash
-cd "저장소의 실제 경로"
+cd ~/Projects/AI-Sensor-arduino
 git pull
+```
+
+경로를 확인합니다.
+
+```bash
+pwd
+test -f README.md && test -f requirements.txt && echo "프로젝트 경로 정상"
 ```
 
 ## 5. Python 환경 만들기
