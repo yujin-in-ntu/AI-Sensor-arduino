@@ -18,14 +18,20 @@
 Windows PowerShell:
 
 ```powershell
-Set-Location -LiteralPath "저장소의 실제 경로"
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Test-Path -LiteralPath .\requirements.txt
 ```
 
 macOS/Ubuntu Terminal:
 
 ```bash
-cd "저장소의 실제 경로"
+cd ~/Projects/AI-Sensor-arduino
+test -f requirements.txt && echo "프로젝트 경로 정상"
 ```
+
+Windows에서 `True`, macOS/Ubuntu에서 `프로젝트 경로 정상`이 나와야 합니다.
+다른 위치에 이미 저장소를 받은 사용자는 자신의 실제 경로를 사용할 수 있지만,
+한 실습 도중에는 저장소를 옮기거나 두 복사본을 번갈아 사용하지 마세요.
 
 ### 포트 확인
 
