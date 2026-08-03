@@ -161,13 +161,13 @@ void updateBest(float probability, float& bestProbability) {
 
 ## 이제 실제 코드로 이동
 
-문법을 읽었다면 [실제 학습·추론 코드 빈칸 실습](AI_CODE_LAB.md)으로 이동합니다.
-학생은 다음 두 파일을 직접 수정합니다.
+문법을 읽었다면 [카메라 CNN 학습 코드 읽기·Arduino 추론 실습](AI_CODE_LAB.md)으로
+이동합니다. Python은 수정하지 않고 실제 학습 흐름을 함께 읽습니다. 학생이 직접
+수정하는 파일은 Arduino 추론 연습 스케치입니다.
 
 ```text
-python/train_camera_model.py
 arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 ```
 
-두 파일을 완성하면 공개 예제나 직접 촬영한 데이터를 실제로 학습하고, 생성된
-INT8 모델을 Nano 33 BLE Sense Lite에 업로드해 같은 추론 GUI로 확인할 수 있습니다.
+완성된 Python 코드로 공개 예제나 직접 촬영한 데이터를 학습하고, 생성된 INT8
+모델을 Nano 33 BLE Sense Lite에 업로드해 같은 추론 GUI로 확인할 수 있습니다.

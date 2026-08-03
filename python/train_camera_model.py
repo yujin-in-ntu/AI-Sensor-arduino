@@ -1,7 +1,7 @@
 """카메라 숫자 사진을 CNN으로 학습하고 Arduino용 INT8 모델을 만듭니다.
 
-이 파일은 README의 기본 학습 명령이 실제로 실행하는 코드입니다. 학생은 별도의
-연습용 신경망이 아니라 이 파일의 ``____PY...____`` 6곳을 직접 완성합니다.
+README의 기본 학습 명령이 실행하는 완성 코드입니다. 학생은 코드를 수정하지 않고
+사진이 정규화·CNN·손실 계산·역전파·INT8 변환을 거치는 위치를 함께 읽습니다.
 """
 
 from __future__ import annotations
@@ -33,13 +33,8 @@ def read_pgm(path: Path) -> np.ndarray:
 def normalize_images(images: list[np.ndarray]) -> np.ndarray:
     """uint8 이미지 목록을 CNN 입력인 float32 0~1 배열로 바꿉니다."""
 
-    # TODO PY1: 데이터 정규화
-    # 문법 미니 노트
-    # - np.asarray(목록, dtype=자료형)은 목록을 NumPy 배열로 바꿉니다.
-    # - [..., np.newaxis]는 맨 뒤에 채널 축 1개를 추가합니다.
-    # - / 연산은 배열의 모든 값에 한꺼번에 적용됩니다.
-    # 생각 질문: 카메라 픽셀의 최댓값을 어떤 실수로 나누면 0~1이 될까요?
-    return np.asarray(images, dtype=np.float32)[..., np.newaxis] / ____PY1____
+    # uint8 0~255를 float32 0~1로 바꾸고 흑백 채널 축 1개를 추가합니다.
+    return np.asarray(images, dtype=np.float32)[..., np.newaxis] / 255.0
 
 
 def load_dataset(root: Path, digits: list[int]) -> tuple[np.ndarray, np.ndarray]:
@@ -161,43 +156,14 @@ def build_model(class_count: int) -> tf.keras.Model:
     )
 
 
-@tf.keras.utils.register_keras_serializable(package="TinyML")
-def sparse_cross_entropy_from_logits(
-    labels: tf.Tensor, logits: tf.Tensor
-) -> tf.Tensor:
-    """학생이 완성한 Softmax·Cross Entropy를 실제 학습 손실로 사용합니다."""
-
-    labels = tf.cast(tf.reshape(labels, [-1]), tf.int32)
-
-    # TODO PY2: 지수 계산이 너무 커지지 않도록 각 행의 최댓값을 뺍니다.
-    # 힌트: logits에서 maximum을 빼는 식입니다.
-    maximum = tf.reduce_max(logits, axis=1, keepdims=True)
-    shifted_logits = ____PY2____
-
-    # TODO PY3: 모든 logit에 지수함수 exp를 적용해 Softmax 분자를 만듭니다.
-    exponentials = ____PY3____
-
-    # TODO PY4: 각 분자를 같은 행의 전체 합으로 나누어 확률로 만듭니다.
-    # 힌트: tf.reduce_sum(..., axis=1, keepdims=True)로 행별 합을 구합니다.
-    probabilities = ____PY4____
-
-    # 각 이미지에서 실제 정답 클래스의 확률만 선택합니다.
-    row_indices = tf.range(tf.shape(labels)[0], dtype=tf.int32)
-    answer_indices = tf.stack([row_indices, labels], axis=1)
-    answer_probabilities = tf.gather_nd(probabilities, answer_indices)
-
-    # TODO PY5: 정답 확률에 -log를 적용해 Cross Entropy를 계산합니다.
-    # 1e-7은 log(0)이 되는 것을 막는 아주 작은 값입니다.
-    losses = ____PY5____
-    return tf.reduce_mean(losses)
-
-
 def compile_model(model: tf.keras.Model) -> tf.keras.Model:
     """완성된 학습 설정을 모델에 연결합니다."""
 
+    # 마지막 Dense는 확률이 아닌 logits를 출력하므로 from_logits=True입니다.
+    # 이 손실함수 안에서 Softmax와 Cross Entropy가 안정적인 방식으로 계산됩니다.
     model.compile(
         optimizer=tf.keras.optimizers.Adam(),
-        loss=sparse_cross_entropy_from_logits,
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=["accuracy"],
     )
     return model
@@ -236,12 +202,8 @@ def train_model(
 def select_best_index(scores: np.ndarray) -> int:
     """가장 점수가 큰 클래스의 위치를 고릅니다."""
 
-    # TODO PY6: argmax 추론
-    # 문법 미니 노트
-    # - np.함수이름(배열)은 NumPy 도구 상자의 함수를 호출한다는 뜻입니다.
-    # - 가장 큰 값 자체가 아니라 '가장 큰 값의 위치'를 반환하는 함수를 찾습니다.
-    # 생각 질문: [0.1, 0.7, 0.2]에서 필요한 답은 값 0.7일까요, 위치 1일까요?
-    return int(np.____PY6____(scores))
+    # argmax는 가장 큰 점수 자체가 아니라 그 점수의 위치를 반환합니다.
+    return int(np.argmax(scores))
 
 
 def convert_int8(model: tf.keras.Model, representative: np.ndarray) -> bytes:
@@ -350,7 +312,7 @@ def main() -> None:
     )
     x_aug, y_aug = augment(x_train, y_train, args.seed)
 
-    # 학생이 완성한 정규화와 Cross Entropy 수식이 실제 모델 학습에 사용됩니다.
+    # 위에서 읽은 CNN, 손실함수, fit 흐름으로 실제 모델을 학습합니다.
     model = compile_model(build_model(len(digits)))
     history = train_model(
         model, x_aug, y_aug, x_val, y_val, args.epochs

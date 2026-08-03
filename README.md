@@ -43,7 +43,7 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 - [기본: 직접 촬영하는 01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
 - [대체: 촬영이 어려울 때 공개 예제 데이터로 학습](docs/EXAMPLE_DATA.md)
 - [실제 CNN 코드에 필요한 Python·NumPy 문법](docs/PYTHON_NUMPY_START.md)
-- [실제 학습·Arduino 추론 코드 빈칸 실습](docs/AI_CODE_LAB.md)
+- [카메라 CNN 학습 코드 읽기·Arduino 추론 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
 
 ## 처음부터 끝까지 README 하나로 따라 하기
@@ -527,25 +527,10 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 수집 GUI를 닫습니다. Arduino에 02 스케치가 올라가 있어도 PC 학습에는 문제가
 없습니다.
 
-처음 한 번은 `python/train_camera_model.py`를 편집기로 열고 `PY1~PY6`의 실제
-학습 수식 빈칸 6개를 채웁니다. CNN 구조와 `compile()`·`fit()` 호출은 답과 설명이
-코드에 완성되어 있습니다. 학생은 정규화, Softmax, Cross Entropy, `argmax` 수식을
-직접 작성합니다. 자세한 해설은
-[실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 봅니다.
-
-Windows에서 작성한 코드를 먼저 검사합니다.
-
-```powershell
-.\.venv\Scripts\python.exe python\check_exercises.py --part python
-```
-
-macOS/Ubuntu:
-
-```bash
-./.venv/bin/python python/check_exercises.py --part python
-```
-
-5개 검사를 모두 통과한 뒤 아래의 같은 `train_camera_model.py`를 실행합니다.
+Python 학습 파일은 수정하지 않습니다. 먼저
+[카메라 CNN 학습 코드 읽기](docs/AI_CODE_LAB.md)에서 사진이 정규화, Conv2D,
+MaxPooling, Dense, Cross Entropy, Backpropagation을 거치는 위치를 실제 코드와
+함께 확인한 뒤 아래의 완성된 `train_camera_model.py`를 실행합니다.
 
 Windows:
 
@@ -887,15 +872,13 @@ python/
 ├─ train_mnist_model.py       MNIST 다운로드·학습
 ├─ run_inference_gui.py       Arduino 추론 결과 GUI
 ├─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
-└─ check_exercises.py         실제 Python·Arduino 빈칸 자동 검사
+└─ check_exercises.py         Arduino 실제 추론 빈칸 검사
 ```
 
 학생은 별도의 `learning` 복사본이 아니라 README의 기본 명령이 실행하는
-`python/train_camera_model.py`에서 완성된 CNN·`compile()`·`fit()` 흐름을 읽고,
-정규화·Softmax·Cross Entropy·`argmax` 수식을 직접 완성합니다. 학생용 Arduino
-스케치도 기존 GUI와 같은 통신 규칙을 사용합니다.
-[실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 완료하면 학생이 작성한 코드가 실제
-모델 학습부터 보드 추론까지 그대로 실행됩니다.
+`python/train_camera_model.py`의 완성된 정규화·CNN·손실·`fit()` 흐름을 함께
+읽습니다. Python은 수정하지 않고 그대로 실행합니다. 직접 작성하는 활동은
+Arduino 학생용 스케치의 양자화·Softmax·최댓값 선택 수식에서 진행합니다.
 
 ## 전체 흐름 한눈에 보기
 
@@ -916,15 +899,12 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
 `model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
 추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
-`train_camera_model.py` 안의 `PY1~PY6` 수식 빈칸 6개를 채우기 전에는 학습을
-시작할 수 없습니다. 이것은 학생이 완성한 문장이 실제 학습에 사용되게 하기 위한
-의도적인 빈칸입니다.
+Python 학습 코드는 완성된 상태이므로 별도의 빈칸을 채우지 않고 실행할 수 있습니다.
 
 ## 가장 중요한 사용 규칙
 
 - Python 프로그램을 실행하기 전에 Arduino IDE의 **시리얼 모니터와 시리얼 플로터를 모두 닫습니다.** 한 포트는 한 프로그램만 열 수 있습니다.
 - `02`를 업로드한 상태에서는 미리보기와 데이터 수집을 실행합니다.
-- 첫 학습 전 `python/train_camera_model.py`의 Python 빈칸을 채우고 `python/check_exercises.py --part python` 검사를 통과합니다.
 - 모델을 학습하면 `arduino/camera_03_inference/model_data.h`가 새로 생성됩니다.
 - 모델이 바뀔 때마다 `03`을 다시 컴파일하고 업로드해야 합니다.
 - 빨간 상자는 종이, 초록 상자는 감지된 숫자입니다.

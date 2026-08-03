@@ -138,27 +138,11 @@ Ubuntu:
 
 포트 이름은 자신의 컴퓨터에서 확인한 값으로 바꿉니다.
 
-## 예제 데이터로 실제 CNN 코드 빈칸 실습
+## 예제 데이터로 실제 CNN 학습 코드 확인
 
-실제로 실행되는 `python/train_camera_model.py`의 TODO를 채우면 이 공개 예제 데이터를
-실제로 CNN 학습하고 Arduino용 `model_data.h`를 생성할 수 있습니다. 별도의 PC용
-장난감 모델을 만들지 않습니다.
-
-먼저 Python 빈칸을 검사합니다.
-
-Windows:
-
-```powershell
-.\.venv\Scripts\python.exe python\check_exercises.py --part python
-```
-
-macOS/Ubuntu:
-
-```bash
-./.venv/bin/python python/check_exercises.py --part python
-```
-
-검사 통과 후 3 epoch로 실제 연결을 빠르게 확인합니다.
+완성된 `python/train_camera_model.py`를 수정하지 않고 공개 예제 데이터로 실행합니다.
+사진이 정규화, CNN, 손실 계산, 역전파, INT8 변환을 거치는 코드를 먼저 함께 읽고
+3 epoch로 실제 연결을 빠르게 확인합니다.
 
 Windows:
 
@@ -172,8 +156,8 @@ macOS/Ubuntu:
 ./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
 ```
 
-성공하면 완성본과 학생용 Arduino 폴더 양쪽에 같은 모델 헤더가 생성됩니다.
-전체 빈칸 설명과 Arduino 업로드 순서는 [실제 코드 빈칸 실습](AI_CODE_LAB.md)을
+성공하면 Arduino 완성본 폴더에 모델 헤더가 생성됩니다. 전체 학습 코드 설명과
+Arduino 추론 빈칸·업로드 순서는 [카메라 CNN 학습 코드 읽기](AI_CODE_LAB.md)를
 따릅니다.
 
 ## 하드웨어가 불량일 때 가능한 범위
