@@ -527,9 +527,9 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 수집 GUI를 닫습니다. Arduino에 02 스케치가 올라가 있어도 PC 학습에는 문제가
 없습니다.
 
-처음 한 번은 `python/train_camera_model.py`를 편집기로 열고 `____PY1____`부터
-`____PY10____`까지 실제 학습 코드의 빈칸을 채웁니다. 각 빈칸 바로 위에 Python
-문법과 생각할 질문이 적혀 있습니다. 자세한 해설은
+처음 한 번은 `python/train_camera_model.py`를 편집기로 열고 `PY1`, `PY5~PY10`의
+실제 학습 코드 빈칸 7개를 채웁니다. CNN 구조는 답과 층별 설명이 코드에 완성되어
+있습니다. 각 빈칸 바로 위에는 Python 문법과 생각할 질문이 적혀 있습니다. 자세한 해설은
 [실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 봅니다.
 
 Windows에서 작성한 코드를 먼저 검사합니다.
@@ -890,8 +890,9 @@ python/
 ```
 
 학생은 별도의 `learning` 복사본이 아니라 README의 기본 명령이 실행하는
-`python/train_camera_model.py`에서 정규화·CNN·`compile()`·`fit()`·`argmax`를
-직접 완성합니다. 학생용 Arduino 스케치도 기존 GUI와 같은 통신 규칙을 사용합니다.
+`python/train_camera_model.py`에서 완성된 CNN 구조와 층별 주석을 읽고, 정규화·
+`compile()`·`fit()`·`argmax`를 직접 완성합니다. 학생용 Arduino 스케치도 기존
+GUI와 같은 통신 규칙을 사용합니다.
 [실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 완료하면 학생이 작성한 코드가 실제
 모델 학습부터 보드 추론까지 그대로 실행됩니다.
 
@@ -914,7 +915,7 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
 `model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
 추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
-`train_camera_model.py` 안의 `____PY1____`~`____PY10____`을 채우기 전에는 학습을
+`train_camera_model.py` 안의 `PY1`, `PY5~PY10` 빈칸 7개를 채우기 전에는 학습을
 시작할 수 없습니다. 이것은 학생이 완성한 문장이 실제 학습에 사용되게 하기 위한
 의도적인 빈칸입니다.
 

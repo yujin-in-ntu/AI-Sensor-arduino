@@ -1,7 +1,7 @@
 """카메라 숫자 사진을 CNN으로 학습하고 Arduino용 INT8 모델을 만듭니다.
 
 이 파일은 README의 기본 학습 명령이 실제로 실행하는 코드입니다. 학생은 별도의
-연습용 신경망이 아니라 이 파일의 ``____PY...____`` 10곳을 직접 완성합니다.
+연습용 신경망이 아니라 이 파일의 ``____PY...____`` 7곳을 직접 완성합니다.
 """
 
 from __future__ import annotations
@@ -114,25 +114,49 @@ def augment(x: np.ndarray, y: np.ndarray, seed: int, copies: int = 5):
 def build_model(class_count: int) -> tf.keras.Model:
     """실제 Arduino에 넣을 작은 CNN을 만듭니다."""
 
-    # TODO PY2~PY4: CNN 구조
-    # 문법 미니 노트
-    # - 함수(위치인자, 이름=값)는 함수를 호출하는 기본 형태입니다.
-    # - 문자열은 "따옴표"로 감쌉니다. 변수 이름에는 따옴표를 쓰지 않습니다.
-    # - Sequential([층1, 층2, ...])은 층을 위에서 아래 순서로 연결합니다.
-    # 생각 질문
-    # - 음수를 0으로 만드는 활성화 함수 이름은 무엇일까요?
-    # - 2x2 풀링의 크기는 어떤 정수 하나로 쓸 수 있을까요?
-    # - 마지막 출력 개수는 고정 숫자일까요, 함수가 받은 class_count일까요?
+    # CNN 구조는 처음 배우는 학생이 API 인자 순서를 추측하지 않도록 완성해 둡니다.
+    # Sequential은 아래 목록의 층을 위에서 아래 순서로 연결합니다.
     return tf.keras.Sequential(
         [
+            # 입력: 28×28 흑백 이미지입니다. 마지막 1은 흑백 채널 1개를 뜻합니다.
             tf.keras.layers.Input(shape=(28, 28, 1)),
-            tf.keras.layers.Conv2D(8, 3, activation=____PY2____),
-            tf.keras.layers.MaxPooling2D(____PY3____),
-            tf.keras.layers.Conv2D(16, 3, activation="relu"),
-            tf.keras.layers.MaxPooling2D(2),
+
+            # 3×3 필터 8개가 선·모서리 같은 특징을 찾습니다.
+            # valid는 바깥 여백을 추가하지 않으므로 28×28×1 → 26×26×8입니다.
+            # relu는 음수 결과를 0으로 바꿉니다.
+            tf.keras.layers.Conv2D(
+                filters=8,
+                kernel_size=(3, 3),
+                strides=(1, 1),
+                padding="valid",
+                activation="relu",
+            ),
+
+            # 각 2×2 영역의 최댓값만 남겨 26×26×8 → 13×13×8로 줄입니다.
+            tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+            # 앞에서 찾은 선들을 조합해 곡선·숫자 일부 같은 특징 16종류를 찾습니다.
+            # 3×3 valid 합성곱이므로 13×13×8 → 11×11×16입니다.
+            tf.keras.layers.Conv2D(
+                filters=16,
+                kernel_size=(3, 3),
+                strides=(1, 1),
+                padding="valid",
+                activation="relu",
+            ),
+
+            # 다시 2×2 최댓값만 남겨 11×11×16 → 5×5×16으로 줄입니다.
+            tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+            # 5×5×16개의 특징을 Dense 층이 받을 수 있는 길이 400의 배열로 펼칩니다.
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(32, activation="relu"),
-            tf.keras.layers.Dense(____PY4____),  # 선택한 숫자 수만큼 점수 출력
+
+            # 특징 400개를 조합하여 숫자를 판단할 중간 특징 32개를 만듭니다.
+            tf.keras.layers.Dense(units=32, activation="relu"),
+
+            # 분류할 숫자가 0~3이면 class_count는 4이고 점수(logit)도 4개입니다.
+            # Softmax는 Arduino에서 직접 계산하므로 여기에는 activation을 넣지 않습니다.
+            tf.keras.layers.Dense(units=class_count),
         ]
     )
 

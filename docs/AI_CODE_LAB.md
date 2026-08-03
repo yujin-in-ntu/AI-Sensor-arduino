@@ -17,7 +17,7 @@
 
 | 파일 | 학생이 작성하는 내용 |
 |---|---|
-| `python/train_camera_model.py` | 실제 기본 학습 파일에서 정규화, CNN, compile, fit, argmax |
+| `python/train_camera_model.py` | 완성된 CNN을 읽고 정규화, compile, fit, argmax를 직접 작성 |
 | `arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino` | 입력 양자화, 출력 역양자화, Softmax, 최댓값 선택 |
 
 다음 파일은 비교와 검사에 사용합니다.
@@ -46,7 +46,9 @@
 python/train_camera_model.py
 ```
 
-편집기에서 `____PY`를 검색하면 TODO 10개를 차례대로 찾을 수 있습니다.
+편집기에서 `____PY`를 검색하면 `PY1`, `PY5~PY10`의 TODO 7개를 찾을 수 있습니다.
+`PY2~PY4`였던 CNN 구조는 학생이 API 인자 순서를 추측하지 않도록 답과 설명을
+완성해 두었습니다.
 
 ### 2. PY1: 데이터 정규화
 
@@ -58,20 +60,26 @@ python/train_camera_model.py
 - 정수 `255`와 실수 `255.0` 중 어떤 표현이 의도를 더 잘 보여 주는가?
 - `[..., np.newaxis]` 뒤 shape는 어떻게 변하는가?
 
-### 3. PY2~PY4: CNN 구조
+### 3. 완성 코드로 읽는 CNN 구조
 
-실제 완성 모델과 같은 구조를 만듭니다.
+CNN 층은 빈칸으로 두지 않습니다. 실제 코드에는 `filters=`, `kernel_size=`,
+`pool_size=`, `units=`처럼 인자의 이름을 모두 표시하고 각 층의 역할과 출력 크기를
+주석으로 적었습니다.
 
 ```text
-28x28x1
-→ Conv2D 8개
-→ MaxPooling
-→ Conv2D 16개
-→ MaxPooling
-→ Flatten
-→ Dense 32개
-→ 숫자 클래스 수만큼 logits
+28×28×1 입력
+→ 3×3 Conv2D 필터 8개: 26×26×8
+→ 2×2 MaxPooling: 13×13×8
+→ 3×3 Conv2D 필터 16개: 11×11×16
+→ 2×2 MaxPooling: 5×5×16
+→ Flatten: 400
+→ Dense: 32
+→ Dense: 숫자 클래스 수만큼 logits
 ```
+
+`padding="valid"`인 3×3 합성곱은 바깥 여백을 추가하지 않으므로 가로와 세로가
+각각 2씩 줄어듭니다. 2×2 MaxPooling은 각 영역의 최댓값만 남겨 크기를 약 절반으로
+줄입니다. `Flatten`은 `5×5×16=400`개 값을 한 줄로 펼칩니다.
 
 마지막 Dense에는 Softmax를 넣지 않습니다. Arduino에서 logits를 역양자화한 뒤
 Softmax를 직접 계산하기 때문입니다.
@@ -258,9 +266,6 @@ README의 기본 명령과 실제 카메라 데이터에 그대로 사용됩니�
 | 빈칸 | 정답 |
 |---|---|
 | PY1 | `255.0` |
-| PY2 | `"relu"` |
-| PY3 | `2` |
-| PY4 | `class_count` |
 | PY5 | `"adam"` |
 | PY6 | `True` |
 | PY7 | `"accuracy"` |
