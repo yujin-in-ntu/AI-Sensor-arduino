@@ -403,25 +403,25 @@ arduino/camera_01_check/camera_01_check.ino
 Windows 예시:
 
 ```powershell
-.\.venv\Scripts\python.exe python\check_camera_terminal.py --port COM5
+.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
 ```
 
 macOS:
 
 ```bash
-./.venv/bin/python python/check_camera_terminal.py --port /dev/cu.usbmodem1101
+./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
 ```
 
 Ubuntu:
 
 ```bash
-./.venv/bin/python python/check_camera_terminal.py --port /dev/ttyACM0
+./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
 ```
 
-프로그램이 자동으로 보드에 `PING`과 `CAPTURE`를 보내고 28줄짜리 문자 그림을
-터미널에 출력합니다. `카메라 응답 정상`이 나오면 카메라 통신에 성공한 것입니다.
-이 화면은 숫자를 정밀하게 확인하는 용도가 아니므로 픽셀이 거칠어도 다음 단계로
-이동합니다.
+`OV7675 원본 160x120 미리보기` 창이 열리고 실제 카메라 영상이 나타나면 통신에
+성공한 것입니다. `한 장 촬영`을 누르면 현재 영상이 갱신됩니다. 빨간 사각형은
+AI가 사용하는 중앙 영역을 보여주며, 창 아래에는 명암 차이가 표시됩니다.
+확인이 끝나면 창을 닫아 포트를 해제한 뒤 다음 단계로 이동합니다.
 
 ### 6단계: 02 Full View에서 자기 숫자 촬영
 
@@ -843,7 +843,7 @@ GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`
 ```text
 arduino/
 ├─ camera_01_check/
-│  └─ camera_01_check.ino       카메라 연결과 문자 미리보기 확인
+│  └─ camera_01_check.ino       실제 160×120 카메라 확인 창에 원본 전송
 ├─ camera_02_collect/
 │  └─ camera_02_collect.ino     160×120 Full View 미리보기·데이터 수집
 ├─ camera_03_inference/
@@ -861,7 +861,6 @@ arduino/
 ```text
 python/
 ├─ camera_preprocess.py       종이·숫자 탐지와 28×28 전처리
-├─ check_camera_terminal.py   01 카메라 응답·문자 영상을 터미널에서 확인
 ├─ preview_camera.py          160×120 원본 미리보기 GUI
 ├─ collect_camera_data.py     Full View 데이터 수집 GUI
 ├─ train_camera_model.py      직접 촬영 데이터 CNN 학습

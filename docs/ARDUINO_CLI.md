@@ -69,22 +69,22 @@ arduino-cli compile --fqbn arduino:mbed_nano:nano33ble arduino/camera_01_check
 arduino-cli upload --port <PORT> --fqbn arduino:mbed_nano:nano33ble arduino/camera_01_check
 ```
 
-01 업로드 후 Arduino CLI 모니터 대신 프로젝트의 Python 터미널 확인 도구를
-사용합니다. `<PORT>`를 실제 포트로 바꿉니다.
+01 업로드 후 Arduino CLI 모니터 대신 실제 카메라 확인 창을 엽니다. `<PORT>`를
+실제 포트로 바꿉니다.
 
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\check_camera_terminal.py --port COM5
+.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/check_camera_terminal.py --port <PORT>
+./.venv/bin/python python/preview_camera.py --port <PORT>
 ```
 
-프로그램이 자동으로 `PING`과 `CAPTURE`를 보내고 28×28 문자 영상을 출력합니다.
+`OV7675 원본 160x120 미리보기` 창에서 실제 영상을 확인합니다.
 
 ## 5. 02 Full View 수집 스케치
 
