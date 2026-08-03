@@ -36,7 +36,9 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 - [프로그램·프로젝트·Arduino 라이브러리 정확한 경로](docs/PATHS.md)
 - [Arduino CLI로 컴파일·업로드](docs/ARDUINO_CLI.md) — 선택 사항
 
-설치가 끝났다면 모든 운영체제에서 공통으로 사용하는 실습 문서로 이동합니다.
+이 README 아래에 설치부터 촬영·학습·업로드·추론까지 전체 순서가 모두 있습니다.
+처음 실습하는 학생은 다른 문서로 이동하지 말고 다음 절부터 계속 아래로 읽습니다.
+아래 문서들은 특정 운영체제나 주제를 더 자세히 확인할 때만 참고합니다.
 
 - [기본: 직접 촬영하는 01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
 - [대체: 촬영이 어려울 때 공개 예제 데이터로 학습](docs/EXAMPLE_DATA.md)
@@ -44,11 +46,11 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 - [실제 학습·Arduino 추론 코드 빈칸 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
 
-## 처음부터 따라 하는 설치와 환경 준비
+## 처음부터 끝까지 README 하나로 따라 하기
 
-아래 0~2단계는 직접 촬영 실습과 공개 예제 데이터 실습에 공통으로 필요한
-설치 과정입니다. 환경 준비가 끝나면 기본적으로 학생이 자기 손글씨를 직접
-촬영하고 학습합니다. GitHub의 예제 데이터는 촬영이 되지 않을 때만 사용합니다.
+0~2단계에서 프로그램과 프로젝트를 준비하고, 3~8단계에서 학생이 자기 손글씨를
+직접 촬영·학습·추론합니다. 촬영이 불가능한 학생만 마지막 9단계의 GitHub 예제
+데이터를 사용합니다. 처음 실습할 때는 이 순서대로 위에서 아래로 진행하세요.
 
 명령은 저장소 최상위 폴더의 터미널에서 **한 줄씩 입력하고 Enter**를 누릅니다.
 앞 명령이 끝난 뒤 다음 명령을 실행하세요. 명령 앞의 `PS C:\...>` 같은 터미널
@@ -133,7 +135,77 @@ macOS에서는 `python3 --version`을 사용합니다. Ubuntu를 포함한 자�
 4. 왼쪽 `Boards Manager`에서 `Arduino Mbed OS Nano Boards`를 검색해 설치합니다.
 5. Nano 33 BLE Sense Lite를 데이터 통신용 USB 케이블로 연결합니다.
 6. IDE 상단 보드 메뉴에서 `Arduino Nano 33 BLE`와 연결된 포트를 선택합니다.
-7. 카메라와 TensorFlow Lite 라이브러리는 운영체제별 설치 문서의 안내대로 설치합니다.
+7. Arduino IDE를 닫고 아래 명령으로 카메라와 TensorFlow Lite 라이브러리를 설치합니다.
+
+Windows PowerShell:
+
+```powershell
+$arduinoLibraries = Join-Path $env:USERPROFILE "Documents\Arduino\libraries"
+New-Item -ItemType Directory -Path $arduinoLibraries -Force | Out-Null
+Set-Location -LiteralPath $arduinoLibraries
+git clone https://github.com/arduino-libraries/Arduino_OV767X.git Arduino_OV767X
+git clone https://github.com/tensorflow/tflite-micro-arduino-examples.git Arduino_TensorFlowLite
+```
+
+macOS/Ubuntu:
+
+```bash
+mkdir -p ~/Documents/Arduino/libraries
+cd ~/Documents/Arduino/libraries
+git clone https://github.com/arduino-libraries/Arduino_OV767X.git Arduino_OV767X
+git clone https://github.com/tensorflow/tflite-micro-arduino-examples.git Arduino_TensorFlowLite
+```
+
+이미 해당 폴더가 존재한다면 `git clone`을 반복하지 말고 다음처럼 업데이트합니다.
+
+Windows:
+
+```powershell
+git -C "$env:USERPROFILE\Documents\Arduino\libraries\Arduino_OV767X" pull
+git -C "$env:USERPROFILE\Documents\Arduino\libraries\Arduino_TensorFlowLite" pull
+```
+
+macOS/Ubuntu:
+
+```bash
+git -C ~/Documents/Arduino/libraries/Arduino_OV767X pull
+git -C ~/Documents/Arduino/libraries/Arduino_TensorFlowLite pull
+```
+
+설치 후 Arduino IDE를 다시 시작합니다.
+
+이 두 라이브러리는 `AI-Sensor-arduino` 저장소 안에 포함되어 있지 않습니다.
+Arduino IDE의 Library Manager에서 이름이 비슷한 패키지만 설치하면 버전이 달라
+`OV7675 was not declared` 또는 헤더 파일 누락 오류가 날 수 있습니다. 위 GitHub
+주소에서 받은 폴더가 Arduino Sketchbook의 `libraries` 바로 아래에 있어야 합니다.
+
+Windows 설치 확인:
+
+```powershell
+Test-Path -LiteralPath "$env:USERPROFILE\Documents\Arduino\libraries\Arduino_OV767X\src\Arduino_OV767X.h"
+Test-Path -LiteralPath "$env:USERPROFILE\Documents\Arduino\libraries\Arduino_TensorFlowLite\src\TensorFlowLite.h"
+```
+
+macOS/Ubuntu 설치 확인:
+
+```bash
+test -f ~/Documents/Arduino/libraries/Arduino_OV767X/src/Arduino_OV767X.h && echo "OV767X 준비 완료"
+test -f ~/Documents/Arduino/libraries/Arduino_TensorFlowLite/src/TensorFlowLite.h && echo "TensorFlow Lite 준비 완료"
+```
+
+Windows에서는 두 명령이 모두 `True`, macOS/Ubuntu에서는 두 준비 완료 문구가
+나와야 합니다. 그렇지 않으면 01 스케치를 열기 전에 라이브러리 설치부터 해결합니다.
+
+대표 오류의 의미:
+
+| 오류 | 원인과 조치 |
+|---|---|
+| `Arduino_OV767X.h: No such file or directory` | `Arduino_OV767X` 폴더가 Sketchbook의 `libraries`에 없거나 Sketchbook 위치가 다름 |
+| `TensorFlowLite.h: No such file or directory` | `Arduino_TensorFlowLite` GitHub 저장소를 받지 않았거나 폴더 이름이 다름 |
+| `'OV7675' was not declared` | 오래되거나 중복된 OV767X 라이브러리가 먼저 선택됨. Arduino IDE를 닫고 `Documents/Arduino/libraries`의 중복 폴더를 확인한 뒤 위 GitHub 버전만 남김 |
+
+컴파일할 때 `Precompiled library ... not found`가 표시되더라도 마지막에 메모리
+사용량이 나오면 오류가 아니라 소스 코드로 대신 컴파일했다는 경고입니다.
 
 운영체제별 전체 설치 과정:
 
@@ -248,24 +320,177 @@ macOS/Ubuntu:
 `Python ready`가 나오면 다음 단계로 이동합니다. TensorFlow 정보나 경고가 함께
 출력되어도 마지막에 `Python ready`가 있으면 설치가 완료된 것입니다.
 
-## 기본 실습: 학생이 직접 촬영한 데이터로 학습
+## 기본 실습: 직접 촬영부터 추론까지 README 하나로 진행
 
-이 프로젝트의 주 실습은 다음 흐름입니다.
+여기부터는 다른 문서를 열지 않고 3~8단계를 차례대로 진행할 수 있습니다.
 
 ```text
-01 카메라 확인
-→ 02 Full View에서 자기 숫자 0~3을 각 20장 촬영
-→ data/camera_full과 data/camera_digits에 즉시 저장
-→ data/camera_digits로 CNN 학습
-→ model_data.h 생성
-→ 03 추론 스케치 업로드
-→ 자기 손글씨를 다시 보여 주며 추론 확인
+3 하드웨어 조립·포트 확인
+→ 4 카메라 확인 스케치(01)
+→ 5 Full View 촬영·데이터 저장(02)
+→ 6 자기 데이터로 CNN 학습
+→ 7 추론 스케치 업로드(03)
+→ 8 GUI에서 자기 손글씨 추론
 ```
 
-운영체제별 환경 준비를 마쳤다면
-[01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)을 1단계부터 순서대로 진행합니다.
+### 3단계: 하드웨어 조립과 포트 확인
 
-직접 촬영 데이터의 기본 학습 명령은 다음과 같습니다.
+#### 3-1. 전원을 뺀 상태에서 조립
+
+1. Nano 33 BLE Sense Lite에서 USB 케이블을 뺍니다.
+2. Nano 보드를 Tiny Machine Learning Shield의 방향에 맞춰 끝까지 꽂습니다.
+3. OV7675 카메라를 Shield의 카메라 커넥터에 정확한 방향으로 연결합니다.
+4. 연결을 다시 확인한 뒤 데이터 통신이 가능한 USB 케이블을 PC에 연결합니다.
+
+전원이 연결된 상태에서 카메라를 뽑거나 다시 꽂지 마세요.
+
+#### 3-2. Arduino IDE 보드와 포트 선택
+
+1. Arduino IDE 2를 실행합니다.
+2. 상단 보드 메뉴에서 `Arduino Nano 33 BLE`를 선택합니다.
+3. 보드 이름 옆에 표시된 포트를 선택합니다.
+
+터미널에서도 포트를 확인할 수 있습니다.
+
+Windows:
+
+```powershell
+Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name
+```
+
+macOS:
+
+```bash
+ls /dev/cu.usbmodem*
+```
+
+Ubuntu:
+
+```bash
+ls /dev/ttyACM*
+```
+
+아래 명령의 `COM5` 또는 `<PORT>`는 자기 컴퓨터에 표시된 포트로 바꿉니다.
+
+### 4단계: 01 카메라 연결 확인
+
+Arduino IDE 2에서 다음 파일을 엽니다.
+
+```text
+arduino/camera_01_check/camera_01_check.ino
+```
+
+1. 체크 표시 버튼으로 컴파일합니다.
+2. 화살표 버튼으로 보드에 업로드합니다.
+3. 시리얼 모니터를 열고 `115200 baud`를 선택합니다.
+4. 입력창에 `p`를 입력하고 전송합니다.
+
+28줄짜리 문자 그림이 나오면 카메라 통신에 성공한 것입니다. 이 화면은 숫자를
+정밀하게 확인하는 용도가 아니므로 픽셀이 거칠어도 다음 단계로 이동합니다.
+
+### 5단계: 02 Full View에서 자기 숫자 촬영
+
+#### 5-1. 데이터 수집 스케치 업로드
+
+Arduino IDE에서 다음 파일을 엽니다.
+
+```text
+arduino/camera_02_collect/camera_02_collect.ino
+```
+
+컴파일하고 업로드합니다. 업로드가 끝나면 Arduino IDE의 **시리얼 모니터와
+시리얼 플로터를 모두 닫습니다.** 열어 두면 Python이 포트를 사용할 수 없어
+`PermissionError`, `Access is denied`, `Resource busy`가 발생합니다.
+
+#### 5-2. 저장하기 전에 전체 화면 확인
+
+Windows 예시:
+
+```powershell
+.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+```
+
+macOS:
+
+```bash
+./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
+```
+
+Ubuntu:
+
+```bash
+./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
+```
+
+다음을 화면으로 확인합니다.
+
+- 밝은 종이 영역이 화면 안에 충분히 들어오는가?
+- 검은 숫자가 프레임 밖으로 잘리지 않는가?
+- 숫자 상하좌우에 여백이 있는가?
+- 펜 획이 여러 픽셀 두께로 보이는가?
+- 조명이 너무 어둡거나 종이가 하얗게 날아가지 않는가?
+
+거리의 숫자보다 화면 상태가 중요합니다. 확인 창을 닫아 포트를 해제합니다.
+
+#### 5-3. 숫자 0~3을 각 20장 저장
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\collect_camera_data.py --port COM5 --digits 0123 --per-digit 20
+```
+
+macOS:
+
+```bash
+./.venv/bin/python python/collect_camera_data.py --port /dev/cu.usbmodem1101 --digits 0123 --per-digit 20
+```
+
+Ubuntu:
+
+```bash
+./.venv/bin/python python/collect_camera_data.py --port /dev/ttyACM0 --digits 0123 --per-digit 20
+```
+
+수집 GUI의 의미는 다음과 같습니다.
+
+| 화면 요소 | 역할 |
+|---|---|
+| 왼쪽 영상 | OV7675 원본 160×120 화면 |
+| 빨간 상자 | 자동으로 찾은 밝은 종이 영역 |
+| 초록 상자 | 자동으로 찾은 검은 숫자 영역 |
+| 오른쪽 영상 | CNN이 실제로 학습하는 28×28 입력 |
+| `촬영` | 카메라에서 새 프레임 가져오기 |
+| `이 사진 저장` | 품질을 확인한 현재 사진 저장 |
+| `종료` | 수집 프로그램 닫기 |
+
+오른쪽 28×28 영상에서 사람 눈에도 숫자가 보여야 저장합니다. 저장 버튼을 누를
+때마다 다음 두 파일이 즉시 만들어집니다.
+
+```text
+data/camera_full/<숫자>/<시간>.pgm     160×120 원본
+data/camera_digits/<숫자>/<시간>.pgm   학습용 28×28
+```
+
+중간에 종료하거나 USB를 빼도 이미 저장된 사진은 남습니다. 같은 명령을 다시
+실행하면 기존 사진 수를 세고 부족한 숫자부터 이어서 수집합니다.
+
+Windows에서 저장 수를 확인합니다.
+
+```powershell
+Get-ChildItem data\camera_digits -Directory | ForEach-Object { "숫자 $($_.Name): $((Get-ChildItem $_.FullName -Filter '*.pgm').Count)장" }
+```
+
+macOS/Ubuntu:
+
+```bash
+for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm' | wc -l)장"; done
+```
+
+### 6단계: 직접 촬영한 데이터로 CNN 학습
+
+수집 GUI를 닫습니다. Arduino에 02 스케치가 올라가 있어도 PC 학습에는 문제가
+없습니다.
 
 Windows:
 
@@ -279,8 +504,81 @@ macOS/Ubuntu:
 ./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/camera_digits --output-dir models/camera
 ```
 
-`data/camera_digits`에는 학생이 수집 GUI에서 저장한 28×28 이미지가 들어갑니다.
-사진이 없는 상태에서 이 학습 명령부터 실행하지 마세요.
+이 명령은 데이터 분리, 증강, CNN 학습, INT8 변환, 검증, Arduino 헤더 생성을
+자동으로 수행합니다. 실제 가중치 학습은 `train_camera_model.py`의 `model.fit()`에서
+진행됩니다.
+
+성공하면 마지막에 다음 내용이 표시됩니다.
+
+```text
+INT8 검증 정확도: ...%
+모델 크기: ... KiB
+Arduino 헤더 생성: .../arduino/camera_03_inference/model_data.h
+```
+
+Windows에서 생성된 헤더를 확인합니다.
+
+```powershell
+Test-Path -LiteralPath .\arduino\camera_03_inference\model_data.h
+Get-Item -LiteralPath .\arduino\camera_03_inference\model_data.h | Select-Object FullName, Length, LastWriteTime
+```
+
+macOS/Ubuntu:
+
+```bash
+test -f arduino/camera_03_inference/model_data.h && echo "model_data.h 생성 완료"
+ls -lh arduino/camera_03_inference/model_data.h
+```
+
+사진이 없는 상태에서 학습 명령부터 실행하지 마세요. 숫자마다 최소 10장이
+필요하고 처음 실습에서는 각 20장을 권장합니다.
+
+### 7단계: 03 추론 스케치 컴파일·업로드
+
+Arduino IDE에서 다음 파일을 엽니다.
+
+```text
+arduino/camera_03_inference/camera_03_inference.ino
+```
+
+이미 열려 있었다면 새로 생성된 `model_data.h`를 다시 읽도록 스케치를 닫았다가
+다시 엽니다.
+
+1. `Arduino Nano 33 BLE`와 올바른 포트를 다시 선택합니다.
+2. 체크 표시 버튼으로 컴파일합니다.
+3. 화살표 버튼으로 업로드합니다.
+4. 업로드가 끝나면 시리얼 모니터와 시리얼 플로터를 닫습니다.
+
+`Arduino_OV767X가 mbed 아키텍처에서 실행...` 또는 `Precompiled library ... not
+found`가 보여도 마지막에 메모리 사용량과 업로드 성공이 표시되면 정상입니다.
+학습만 하고 03을 다시 업로드하지 않으면 보드는 이전 모델을 계속 사용합니다.
+
+### 8단계: GUI에서 자기 손글씨 추론
+
+Windows 포트 확인과 실행:
+
+```powershell
+Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name
+.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+```
+
+macOS:
+
+```bash
+ls /dev/cu.usbmodem*
+./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
+```
+
+Ubuntu:
+
+```bash
+ls /dev/ttyACM*
+./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+```
+
+GUI에서 숫자를 카메라에 보여 주고 `촬영 및 인식`을 누릅니다. 추론은 PC가 아니라
+Arduino 내부의 INT8 모델이 수행하며 PC GUI는 원본, 28×28 입력, 예측 확률을
+받아 표시합니다.
 
 ## 촬영이 안 될 때만: GitHub 예제 데이터 대체 경로
 
@@ -288,7 +586,7 @@ macOS/Ubuntu:
 학생만 아래 A/B 중 하나를 선택합니다. 두 방법 모두 새 사진을 찍는 과정이 아니라
 GitHub 저장소에 이미 포함된 숫자 `0~3` 예제 데이터를 사용합니다.
 
-### 3단계: 사용할 데이터 방식 선택
+### 9-1단계: 사용할 예제 데이터 방식 선택
 
 다음 두 방법 중 하나를 선택합니다.
 
@@ -297,7 +595,7 @@ GitHub 저장소에 이미 포함된 숫자 `0~3` 예제 데이터를 사용합�
 | A. 예제 전처리본으로 바로 학습 | `data/example_camera_digits` | 카메라 수집 없이 가장 빨리 학습할 때 |
 | B. 예제 원본을 다시 전처리 | `data/example_camera_full` | 카메라 수집 없이 전처리 과정도 체험할 때 |
 
-방법 A를 선택하면 별도 명령 없이 바로 4단계로 이동합니다.
+방법 A를 선택하면 별도 명령 없이 바로 9-2단계로 이동합니다.
 
 방법 B를 선택하면 160×120 원본 80장을 28×28로 다시 전처리합니다.
 
@@ -335,7 +633,7 @@ macOS/Ubuntu 한 줄 명령:
 `work/`는 실험 중간 결과 폴더이며 GitHub에 올라가지 않습니다. 원래 공개 예제
 데이터도 변경하지 않습니다.
 
-### 4단계: 실제 CNN 학습
+### 9-2단계: 예제 데이터로 실제 CNN 학습
 
 방법 A를 선택했다면 다음 명령을 실행합니다.
 
@@ -387,7 +685,7 @@ Arduino 헤더 생성: .../arduino/camera_03_inference/model_data.h
 
 검증 데이터가 16장뿐이므로 한 장 차이로 정확도가 6.25% 변할 수 있습니다.
 
-### 5단계: 생성된 파일 확인
+### 9-3단계: 예제 모델 파일 확인
 
 Windows:
 
@@ -416,7 +714,7 @@ models/example_camera/model_data.h
 
 방법 B에서는 폴더 이름이 `models/example_camera_rebuilt`입니다.
 
-### 6단계: Arduino IDE에서 03 추론 업로드
+### 9-4단계: 예제 모델을 Arduino IDE에서 03으로 업로드
 
 1. Arduino IDE 2를 실행합니다.
 2. `arduino/camera_03_inference/camera_03_inference.ino`를 엽니다.
@@ -429,7 +727,7 @@ models/example_camera/model_data.h
 
 학습만 하고 03을 다시 업로드하지 않으면 보드는 이전 모델을 계속 사용합니다.
 
-### 7단계: 포트 확인과 추론 GUI 실행
+### 9-5단계: 예제 모델로 추론 GUI 실행
 
 Windows 포트 확인:
 
@@ -465,7 +763,7 @@ GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`
 추론은 Arduino 내부의 `camera_03_inference.ino`가 수행하고, GUI는 원본·28×28
 입력·숫자별 확률을 받아 표시합니다.
 
-### 8단계: 다시 학습하거나 모델을 바꿀 때
+### 9-6단계: 다시 학습하거나 모델을 바꿀 때
 
 `train_camera_model.py` 또는 `train_mnist_model.py`를 다시 실행하면
 `arduino/camera_03_inference/model_data.h`가 새 모델로 교체됩니다. 그때마다
@@ -497,9 +795,9 @@ GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`
 
 ### 카메라나 보드가 불량한 경우
 
-- 카메라 수집만 안 되면 공개 예제 데이터로 1~6단계를 진행할 수 있습니다.
-- 보드 연결도 안 되면 1~5단계의 PC 학습과 모델 생성까지 진행할 수 있습니다.
-- 실제 실시간 카메라 추론인 6~7단계는 정상 Arduino와 카메라가 필요합니다.
+- 카메라 수집만 안 되면 9단계의 공개 예제 데이터로 학습할 수 있습니다.
+- 보드 연결도 안 되면 9-3단계의 PC 학습과 모델 생성까지만 진행할 수 있습니다.
+- 실제 실시간 카메라 추론에는 정상 Arduino와 카메라가 필요합니다.
 - 상세 명령과 대체 경로는 [공개 예제 데이터 실습](docs/EXAMPLE_DATA.md)을 확인하세요.
 
 ## 세 개의 Arduino 단계와 학생용 추론 실습
