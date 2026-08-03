@@ -1,5 +1,12 @@
 # 공개 예제 데이터로 전처리·학습·추론하기
 
+이 문서는 기본 실습이 아니라 **직접 촬영이 어려울 때 사용하는 대체 경로**입니다.
+카메라와 포트가 정상인 학생은 먼저 [01 → 02 → 03 전체 실습](EXPERIMENT.md)에서
+자기 손글씨를 촬영하고 `data/camera_digits`로 학습합니다.
+
+아래 A와 B는 모두 GitHub에 이미 올라온 예제 데이터를 사용하므로 학생의 새 사진을
+촬영하지 않습니다.
+
 카메라 수집이 되지 않는 학생도 학습 코드를 실행할 수 있도록 숫자 `0~3`의
 원본과 전처리 데이터를 저장소에 포함했습니다.
 
@@ -131,37 +138,43 @@ Ubuntu:
 
 포트 이름은 자신의 컴퓨터에서 확인한 값으로 바꿉니다.
 
-## 예제 데이터로 수동 신경망 원리 실습
+## 예제 데이터로 실제 CNN 코드 빈칸 실습
 
-Softmax와 역전파 정답 코드로 예제 사진을 학습하려면 다음처럼 실행합니다.
-이 결과는 PC 실습용 `.npz`이며 Arduino용 모델을 만들지는 않습니다.
+학생용 `train_camera_model_exercise.py`의 TODO를 채우면 이 공개 예제 데이터를
+실제로 CNN 학습하고 Arduino용 `model_data.h`를 생성할 수 있습니다. 별도의 PC용
+장난감 모델을 만들지 않습니다.
+
+먼저 Python 빈칸을 검사합니다.
 
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\nn_from_scratch_answer.py `
-  --source camera `
-  --digits 0123 `
-  --data data\example_camera_digits `
-  --epochs 150 `
-  --batch-size 16 `
-  --learning-rate 0.05
+.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part python
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/nn_from_scratch_answer.py \
-  --source camera \
-  --digits 0123 \
-  --data data/example_camera_digits \
-  --epochs 150 \
-  --batch-size 16 \
-  --learning-rate 0.05
+./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part python
 ```
 
-학생용 `nn_from_scratch_exercise.py`의 TODO 8개를 모두 채운 뒤에는 파일 이름만
-바꾸어 같은 명령을 실행할 수 있습니다.
+검사 통과 후 3 epoch로 실제 연결을 빠르게 확인합니다.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\learning\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/learning/train_camera_model_exercise.py --data data/example_camera_digits --digits 0123 --epochs 3
+```
+
+성공하면 완성본과 학생용 Arduino 폴더 양쪽에 같은 모델 헤더가 생성됩니다.
+전체 빈칸 설명과 Arduino 업로드 순서는 [실제 코드 빈칸 실습](AI_CODE_LAB.md)을
+따릅니다.
 
 ## 하드웨어가 불량일 때 가능한 범위
 

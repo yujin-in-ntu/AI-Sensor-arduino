@@ -38,17 +38,17 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 
 설치가 끝났다면 모든 운영체제에서 공통으로 사용하는 실습 문서로 이동합니다.
 
-- [01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
-- [촬영이 어려울 때 공개 예제 데이터로 전처리·학습](docs/EXAMPLE_DATA.md)
-- [0단계: Python·NumPy 문법 한 줄 빈칸](docs/PYTHON_NUMPY_START.md)
-- [Softmax·역전파·추론 코드를 직접 채우는 AI 실습](docs/AI_CODE_LAB.md)
+- [기본: 직접 촬영하는 01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
+- [대체: 촬영이 어려울 때 공개 예제 데이터로 학습](docs/EXAMPLE_DATA.md)
+- [실제 CNN 코드에 필요한 Python·NumPy 문법](docs/PYTHON_NUMPY_START.md)
+- [실제 학습·Arduino 추론 코드 빈칸 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
 
-## 처음부터 따라 하는 빠른 시작: 공개 예제 데이터 사용
+## 처음부터 따라 하는 설치와 환경 준비
 
-아래 순서는 카메라로 데이터를 새로 촬영하지 않고, 저장소에 포함된 숫자 `0~3`
-예제 원본과 전처리본으로 실제 CNN을 학습하고 Arduino에서 추론하는 방법입니다.
-카메라 수집이 되지 않는 학생도 1~5단계까지 진행할 수 있습니다.
+아래 0~2단계는 직접 촬영 실습과 공개 예제 데이터 실습에 공통으로 필요한
+설치 과정입니다. 환경 준비가 끝나면 기본적으로 학생이 자기 손글씨를 직접
+촬영하고 학습합니다. GitHub의 예제 데이터는 촬영이 되지 않을 때만 사용합니다.
 
 명령은 저장소 최상위 폴더의 터미널에서 **한 줄씩 입력하고 Enter**를 누릅니다.
 앞 명령이 끝난 뒤 다음 명령을 실행하세요. 명령 앞의 `PS C:\...>` 같은 터미널
@@ -248,14 +248,54 @@ macOS/Ubuntu:
 `Python ready`가 나오면 다음 단계로 이동합니다. TensorFlow 정보나 경고가 함께
 출력되어도 마지막에 `Python ready`가 있으면 설치가 완료된 것입니다.
 
+## 기본 실습: 학생이 직접 촬영한 데이터로 학습
+
+이 프로젝트의 주 실습은 다음 흐름입니다.
+
+```text
+01 카메라 확인
+→ 02 Full View에서 자기 숫자 0~3을 각 20장 촬영
+→ data/camera_full과 data/camera_digits에 즉시 저장
+→ data/camera_digits로 CNN 학습
+→ model_data.h 생성
+→ 03 추론 스케치 업로드
+→ 자기 손글씨를 다시 보여 주며 추론 확인
+```
+
+운영체제별 환경 준비를 마쳤다면
+[01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)을 1단계부터 순서대로 진행합니다.
+
+직접 촬영 데이터의 기본 학습 명령은 다음과 같습니다.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\camera_digits --output-dir models\camera
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/camera_digits --output-dir models/camera
+```
+
+`data/camera_digits`에는 학생이 수집 GUI에서 저장한 28×28 이미지가 들어갑니다.
+사진이 없는 상태에서 이 학습 명령부터 실행하지 마세요.
+
+## 촬영이 안 될 때만: GitHub 예제 데이터 대체 경로
+
+카메라 불량, USB 포트 문제 또는 수업 시간 부족으로 직접 데이터를 모을 수 없는
+학생만 아래 A/B 중 하나를 선택합니다. 두 방법 모두 새 사진을 찍는 과정이 아니라
+GitHub 저장소에 이미 포함된 숫자 `0~3` 예제 데이터를 사용합니다.
+
 ### 3단계: 사용할 데이터 방식 선택
 
 다음 두 방법 중 하나를 선택합니다.
 
 | 방법 | 사용할 폴더 | 언제 선택하나요? |
 |---|---|---|
-| A. 바로 학습 | `data/example_camera_digits` | 전처리된 28×28 데이터로 가장 빨리 학습할 때 |
-| B. 원본부터 다시 전처리 | `data/example_camera_full` | 전처리 과정을 실행하거나 코드를 수정해 비교할 때 |
+| A. 예제 전처리본으로 바로 학습 | `data/example_camera_digits` | 카메라 수집 없이 가장 빨리 학습할 때 |
+| B. 예제 원본을 다시 전처리 | `data/example_camera_full` | 카메라 수집 없이 전처리 과정도 체험할 때 |
 
 방법 A를 선택하면 별도 명령 없이 바로 4단계로 이동합니다.
 
@@ -462,9 +502,10 @@ GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`
 - 실제 실시간 카메라 추론인 6~7단계는 정상 Arduino와 카메라가 필요합니다.
 - 상세 명령과 대체 경로는 [공개 예제 데이터 실습](docs/EXAMPLE_DATA.md)을 확인하세요.
 
-## 세 개의 Arduino 단계
+## 세 개의 Arduino 단계와 학생용 추론 실습
 
-학생이 열어야 하는 Arduino 스케치는 세 개뿐입니다.
+기본 실습에서 여는 Arduino 스케치는 세 개입니다. 실제 추론 수학을 직접 작성하는
+수업에서는 네 번째 학생용 스케치를 사용합니다.
 
 ```text
 arduino/
@@ -472,9 +513,12 @@ arduino/
 │  └─ camera_01_check.ino       카메라 연결과 문자 미리보기 확인
 ├─ camera_02_collect/
 │  └─ camera_02_collect.ino     160×120 Full View 미리보기·데이터 수집
-└─ camera_03_inference/
-   ├─ camera_03_inference.ino   보드에서 CNN 추론
-   └─ model_data_placeholder.h  아직 모델이 없을 때 사용하는 자리표시자
+├─ camera_03_inference/
+│  ├─ camera_03_inference.ino   보드에서 CNN 추론 완성본
+│  └─ model_data_placeholder.h  아직 모델이 없을 때 사용하는 자리표시자
+└─ camera_03_inference_exercise/
+   ├─ camera_03_inference_exercise.ino  양자화·Softmax·argmax 학생용
+   └─ model_data_placeholder.h          모델 생성 전 자리표시자
 ```
 
 `camera_02_collect`가 우리가 사용한 Full View 방식입니다. 과거의 28×28 전용 수집 스케치는 제거했습니다.
@@ -491,19 +535,15 @@ python/
 ├─ run_inference_gui.py       Arduino 추론 결과 GUI
 ├─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
 └─ learning/
-   ├─ python_numpy_basics_exercise.py  완전 초보자용 문법 빈칸
-   ├─ check_python_numpy_basics.py     문법 빈칸 자동 확인
-   ├─ python_numpy_basics_answer.py    문법 실습 정답
-   ├─ nn_from_scratch_exercise.py  ReLU·Softmax·역전파 빈칸 실습
-   ├─ check_nn_exercise.py         TODO 1~8 자동 확인
-   ├─ nn_from_scratch_answer.py    실습 정답 코드
-   └─ nn_data.py                   MNIST·카메라 데이터 읽기
+   ├─ train_camera_model_exercise.py       실제 CNN 핵심 빈칸
+   ├─ check_actual_pipeline_exercise.py    Python·Arduino 자동 검사
+   └─ train_camera_model_answer.py         실제 CNN 교사용 정답
 ```
 
-CNN을 실행하는 것에서 한 단계 더 나아가 학습 원리를 코드로 이해하려면
-[신경망 코딩 실습](docs/AI_CODE_LAB.md)을 진행하세요. TensorFlow는 MNIST를
-내려받는 데만 사용하고, 순전파·Softmax·교차엔트로피·역전파·SGD·추론을
-NumPy 코드로 직접 완성합니다.
+학생용 Python 파일은 실제 데이터 분리·증강·INT8 변환·Arduino 헤더 생성을
+`train_camera_model.py`에서 재사용합니다. 학생용 Arduino 스케치도 기존 GUI와 같은
+통신 규칙을 사용합니다. [실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 완료하면
+학생이 작성한 코드가 실제 모델 학습부터 보드 추론까지 그대로 실행됩니다.
 
 ## 전체 흐름 한눈에 보기
 
@@ -524,7 +564,8 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
 `model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
 추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
-`python/learning/`은 이 실제 파이프라인에 자동 연결되지 않는 원리 학습용 코드입니다.
+`python/learning/train_camera_model_exercise.py`는 같은 실제 학습·변환 함수를
+사용하므로 완성 후 별도의 장난감 모델이 아니라 Arduino용 `model_data.h`를 만듭니다.
 
 ## 가장 중요한 사용 규칙
 
@@ -547,6 +588,8 @@ models/camera/                 직접 촬영 모델
 models/mnist/                  MNIST 모델
 arduino/camera_03_inference/model_data.h
                                다음 업로드에 포함될 현재 모델
+arduino/camera_03_inference_exercise/model_data.h
+                               학생용 추론 스케치에 포함될 같은 모델
 ```
 
 개인의 촬영 데이터, 학습 모델, 생성된 `model_data.h`는 Git에 올리지 않도록 `.gitignore`에 등록되어 있습니다. 저장소를 새로 복제한 학생은 직접 데이터를 모으거나 MNIST를 학습해 자신의 헤더를 생성합니다.

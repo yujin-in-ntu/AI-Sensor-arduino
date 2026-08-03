@@ -27,6 +27,7 @@ models/
 # 학습 스크립트가 생성하는 큰 모델 배열
 arduino/03_inference/model_data.h
 arduino/camera_03_inference/model_data.h
+arduino/camera_03_inference_exercise/model_data.h
 
 # IDE/운영체제
 .vscode/

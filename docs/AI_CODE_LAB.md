@@ -1,363 +1,294 @@
-# 신경망 학습·추론 코드를 직접 채우는 실습
+# 실제 카메라 학습·Arduino 추론 코드 빈칸 실습
 
-이 실습은 TensorFlow의 `model.fit()` 안에서 자동으로 처리되던 계산을 NumPy로 직접 작성합니다. 목표는 높은 정확도의 Arduino 모델을 새로 만드는 것이 아니라, **학습이 어떤 숫자 계산을 반복하고 추론은 그중 어디까지만 사용하는지** 코드로 이해하는 것입니다.
+이 실습은 별도의 장난감 신경망을 만들지 않습니다. 학생이 채운 Python 코드가
+실제 카메라 데이터를 CNN으로 학습하고, INT8 TFLite와 `model_data.h`를 생성합니다.
+학생이 채운 Arduino 코드는 그 모델로 실제 카메라 추론을 수행합니다.
 
-Python의 점(`.`), 괄호, `np.array`, `.shape`, `axis`가 아직 낯설다면 먼저
-[0단계 Python·NumPy 문법 실습](PYTHON_NUMPY_START.md)을 진행하세요. 이 문서는
-0단계를 마친 학생을 위한 1단계 실습입니다.
+```text
+공개 예제 또는 직접 촬영한 28x28 데이터
+  → 학생이 완성한 CNN 학습 코드
+  → INT8 TFLite
+  → model_data.h
+  → 학생이 완성한 Arduino 양자화·Softmax 코드
+  → 기존 run_inference_gui.py
+```
 
-## 준비된 파일
+## 학생이 수정하는 파일
+
+| 파일 | 학생이 작성하는 내용 |
+|---|---|
+| `python/learning/train_camera_model_exercise.py` | 정규화, CNN, compile, fit, argmax |
+| `arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino` | 입력 양자화, 출력 역양자화, Softmax, 최댓값 선택 |
+
+다음 파일은 비교와 검사에 사용합니다.
 
 | 파일 | 역할 |
 |---|---|
-| `python/learning/nn_from_scratch_exercise.py` | 학생이 TODO 1~8을 채우는 파일 |
-| `python/learning/check_nn_exercise.py` | 각 TODO를 작은 숫자로 자동 검사하는 파일 |
-| `python/learning/nn_from_scratch_answer.py` | 같은 구조의 정답과 설명 |
-| `python/learning/nn_data.py` | MNIST 또는 촬영한 PGM 파일을 읽는 공통 코드 |
+| `python/learning/check_actual_pipeline_exercise.py` | 남은 빈칸과 Python 함수 동작 자동 검사 |
+| `python/learning/train_camera_model_answer.py` | 교사용 Python 정답 실행 파일 |
+| `python/train_camera_model.py` | 실제 완성 학습 코드 |
+| `arduino/camera_03_inference/camera_03_inference.ino` | 실제 완성 Arduino 추론 코드 |
 
-처음에는 정답 파일을 열지 않고 학생용 파일에서 `TODO`를 검색합니다. 막혔을 때 힌트를 읽고, 자동 검사 후 마지막에 정답 파일과 비교하는 순서를 권장합니다.
+처음에는 정답 파일과 완성 코드를 열지 않고 학생용 파일의 힌트만 읽습니다.
 
-## 우리가 직접 만들 신경망
+## 시작 전 문법 준비
 
-```text
-28×28 이미지
-   │  펼치기: 784개 숫자
-   ▼
-z1 = x @ w1 + b1
-   │
-ReLU
-   ▼
-64개 은닉층 값
-   │
-logits = a1 @ w2 + b2
-   │
-Softmax
-   ▼
-0, 1, 2, 3일 확률
-```
+점, 괄호, 문자열, 리스트, `name=value`, 배열 축이 낯설다면 먼저
+[실제 코드에 필요한 Python·NumPy 문법](PYTHON_NUMPY_START.md)을 읽습니다.
 
-`@`는 행렬 곱셈입니다. 이미지 한 장을 예로 들면 배열 모양은 다음과 같습니다.
+학생용 빈칸은 `____PY1____`, `____ARD1____`처럼 표시됩니다. 밑줄 일부만 지우지
+말고 토큰 전체를 자신이 작성한 코드로 교체합니다.
 
-| 이름 | 모양 | 뜻 |
-|---|---:|---|
-| `x` | `1 × 784` | 입력 픽셀 |
-| `w1` | `784 × 64` | 입력과 은닉층을 연결하는 학습 대상 |
-| `b1` | `64` | 첫 번째 편향 |
-| `a1` | `1 × 64` | ReLU를 통과한 은닉층 값 |
-| `w2` | `64 × 4` | 은닉층과 네 숫자를 연결하는 학습 대상 |
-| `b2` | `4` | 두 번째 편향 |
-| `logits` | `1 × 4` | 확률로 바꾸기 전 숫자별 점수 |
-| `probs` | `1 × 4` | 합이 1인 숫자별 확률 |
+## 1부: Python에서 실제 CNN 학습 코드 완성
 
-여러 이미지를 한 번에 계산하면 첫 번째 차원 `1`이 미니배치 크기로 바뀝니다.
-
-## 학습과 추론의 차이
-
-학습은 다음 네 단계를 여러 번 반복합니다.
+### 1. 학생용 파일 열기
 
 ```text
-순전파 → 손실 계산 → 역전파 → 가중치 수정
+python/learning/train_camera_model_exercise.py
 ```
 
-- 순전파: 현재 가중치로 숫자별 확률을 계산합니다.
-- 손실: 계산한 확률이 정답과 얼마나 다른지 하나의 수로 측정합니다.
-- 역전파: 각 가중치가 손실에 얼마나 영향을 줬는지 미분합니다.
-- 가중치 수정: 손실이 줄어드는 방향으로 가중치를 조금 움직입니다.
+편집기에서 `____PY`를 검색하면 TODO 10개를 차례대로 찾을 수 있습니다.
 
-추론에는 정답 라벨이 없고 다음 계산만 합니다.
+### 2. PY1: 데이터 정규화
+
+카메라 PGM의 `uint8` 픽셀은 0~255입니다. CNN 입력은 `float32` 0~1로 사용합니다.
+
+고민할 내용:
+
+- 배열 전체에 같은 계산을 하는 데 반복문이 필요한가?
+- 정수 `255`와 실수 `255.0` 중 어떤 표현이 의도를 더 잘 보여 주는가?
+- `[..., np.newaxis]` 뒤 shape는 어떻게 변하는가?
+
+### 3. PY2~PY4: CNN 구조
+
+실제 완성 모델과 같은 구조를 만듭니다.
 
 ```text
-새 이미지 → 순전파 → Softmax 확률 → argmax → 예측 숫자
+28x28x1
+→ Conv2D 8개
+→ MaxPooling
+→ Conv2D 16개
+→ MaxPooling
+→ Flatten
+→ Dense 32개
+→ 숫자 클래스 수만큼 logits
 ```
 
-따라서 추론할 때는 **손실 계산, 역전파, 가중치 수정이 전혀 일어나지 않습니다.** Arduino의 `camera_03_inference`도 이미 학습된 가중치로 이 부분만 실행합니다.
+마지막 Dense에는 Softmax를 넣지 않습니다. Arduino에서 logits를 역양자화한 뒤
+Softmax를 직접 계산하기 때문입니다.
 
-## TODO 1: ReLU
+### 4. PY5~PY7: compile
 
-파일에서 `def relu`를 찾습니다.
+`compile()`은 학습 방법을 정하지만 아직 학습을 실행하지 않습니다.
 
-```python
-ReLU(z) = max(0, z)
-```
+- optimizer: 가중치를 어떤 방법으로 수정할지 결정
+- loss: 예측 logits와 정답 차이를 계산
+- metrics: 학습 중 사람이 확인할 평가값
+- `from_logits`: 모델 출력이 이미 확률인지 원점수인지 표시
 
-음수 값은 0으로 바꾸고 양수는 그대로 둡니다. 신경망에 직선이 아닌 성질을 넣어 복잡한 숫자 모양을 배울 수 있게 합니다.
+### 5. PY8~PY9: fit
 
-## TODO 2: 안정적인 Softmax
-
-Softmax는 출력 점수 `logits`를 확률로 바꿉니다.
+`model.fit()`을 호출하는 순간 실제 학습이 시작됩니다.
 
 ```text
-exp(점수) / 모든 exp(점수)의 합
+순전파
+→ 손실 계산
+→ 자동 미분으로 역전파
+→ optimizer가 가중치 수정
+→ 다음 batch에서 반복
 ```
 
-큰 값에 바로 `exp`를 적용하면 컴퓨터 숫자 범위를 넘을 수 있습니다. 각 행에서 최댓값을 먼저 빼도 최종 확률은 같으므로 다음 순서로 계산합니다.
+현재 실제 코드는 TensorFlow가 역전파를 내부에서 계산합니다. 별도의 수동 MLP를
+만들지 않아도 학생이 작성한 `fit()` 호출이 실제 CNN 가중치를 바꿉니다.
 
-1. 각 행의 모든 점수에서 그 행의 최댓값을 뺍니다.
-2. `np.exp`를 계산합니다.
-3. 각 행의 합으로 나눕니다.
+### 6. PY10: argmax
 
-`axis=1, keepdims=True`를 사용해야 여러 이미지가 들어와도 행별로 계산됩니다.
+INT8 모델의 숫자별 출력 중 가장 큰 값의 위치를 선택합니다. 값 자체와 위치를
+혼동하지 않도록 `[0.1, 0.7, 0.2]`의 답이 `0.7`인지 `1`인지 먼저 생각합니다.
 
-## TODO 3: 교차엔트로피 손실
-
-정답 클래스의 확률만 골라 `-log`를 계산합니다.
-
-```text
-loss = -평균(log(정답 확률))
-```
-
-정답 확률이 `0.9`라면 벌점이 작고 `0.01`이라면 벌점이 큽니다. `log(0)`을 피하려고 아주 작은 값 `1e-12`를 더합니다.
-
-## TODO 4: 순전파
-
-다음 네 식을 순서대로 구현합니다.
-
-```python
-z1 = x @ w1 + b1
-a1 = relu(z1)
-logits = a1 @ w2 + b2
-probs = softmax(logits)
-```
-
-역전파 때 다시 사용하도록 중간 결과를 `cache` 딕셔너리에 저장합니다.
-
-## TODO 5: 출력층 역전파
-
-정답 `y`를 `[0, 0, 1, 0]` 같은 one-hot 배열로 바꿉니다. Softmax와 교차엔트로피를 함께 사용하면 출력 점수의 기울기는 간단해집니다.
-
-```python
-d_logits = (probs - one_hot) / batch_size
-d_w2 = a1.T @ d_logits
-d_b2 = np.sum(d_logits, axis=0)
-d_a1 = d_logits @ w2.T
-```
-
-`d_`는 “손실을 해당 값으로 미분한 결과”라는 뜻입니다. 예를 들어 `d_w2`는 `w2`를 조금 바꿀 때 손실이 어느 방향으로 얼마나 변하는지 나타냅니다.
-
-## TODO 6: 은닉층 역전파
-
-연쇄법칙을 이용해 ReLU 앞과 첫 번째 가중치까지 거꾸로 이동합니다.
-
-```python
-d_z1 = d_a1 * (z1 > 0)
-d_w1 = x.T @ d_z1
-d_b1 = np.sum(d_z1, axis=0)
-```
-
-ReLU는 입력이 양수인 구간에서 기울기가 1이고 음수인 구간에서 0입니다.
-
-## TODO 7: SGD로 가중치 수정
-
-기울기는 손실이 커지는 방향을 가리키므로 반대 방향으로 이동합니다.
-
-```python
-새 가중치 = 기존 가중치 - learning_rate * 기울기
-```
-
-`learning_rate`가 너무 크면 정답 근처를 계속 뛰어넘고, 너무 작으면 학습이 매우 느립니다.
-
-## TODO 8: 추론
-
-`forward()`로 확률을 얻은 뒤 `np.argmax(probs, axis=1)`로 가장 큰 확률의 클래스 번호를 고릅니다. 내부 클래스 번호를 실제 숫자로 바꾸는 작업은 `digits` 목록이 담당합니다.
-
-## 빈칸 자동 확인
-
-저장소 최상위 폴더의 터미널에서 실행합니다.
-
-Windows PowerShell:
-
-```powershell
-.\.venv\Scripts\python.exe python\learning\check_nn_exercise.py
-```
-
-macOS/Ubuntu:
-
-```bash
-./.venv/bin/python python/learning/check_nn_exercise.py
-```
-
-처음에는 `0/8 통과`가 정상입니다. TODO를 하나씩 채울 때마다 해당 줄이 `[통과]`로 바뀝니다. 식은 맞아 보이는데 실패하면 배열의 `axis`, `.T`, 배치 크기로 나누는 부분을 확인합니다.
-
-## MNIST로 직접 학습
-
-8개를 모두 통과한 뒤 학생용 코드를 실행합니다.
+### 7. Python 빈칸 검사
 
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\nn_from_scratch_exercise.py --source mnist --digits 0123 --per-digit 500 --epochs 15
+.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part python
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/nn_from_scratch_exercise.py --source mnist --digits 0123 --per-digit 500 --epochs 15
+./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part python
 ```
 
-매 epoch마다 손실, 학습 정확도, 검증 정확도가 출력됩니다. 정상적인 학습에서는 대체로 손실이 내려가고 정확도가 올라갑니다. 결과 가중치는 다음 위치에 저장됩니다.
+빈칸이 남아 있으면 토큰별 힌트가 나옵니다. 모두 채우면 정규화, CNN 출력 크기,
+Adam·logits 손실, 실제 1 epoch `fit()`, argmax를 작은 입력으로 검사합니다. 전체
+5개가 통과해야 합니다.
 
-```text
-models/learning/manual_mlp.npz
-```
+### 8. 짧은 실제 학습
 
-## 우리가 촬영한 데이터로 학습
-
-`02` 단계에서 `data/camera_digits/0`부터 `3`까지 사진을 저장했다면 다음을 실행합니다. 사진 수가 적으므로 더 많은 epoch와 작은 미니배치를 사용합니다.
+먼저 저장소의 공개 예제 0~3으로 3 epoch만 실행해 전체 연결을 확인합니다.
 
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\nn_from_scratch_exercise.py --source camera --digits 0123 --epochs 150 --batch-size 16 --learning-rate 0.05
+.\.venv\Scripts\python.exe python\learning\train_camera_model_exercise.py --epochs 3
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/nn_from_scratch_exercise.py --source camera --digits 0123 --epochs 150 --batch-size 16 --learning-rate 0.05
+./.venv/bin/python python/learning/train_camera_model_exercise.py --epochs 3
 ```
 
-촬영 데이터가 20장씩뿐이면 검증 정확도는 사진 한두 장에 따라 크게 변합니다. 학습 정확도만 100%이고 검증 정확도가 낮다면 사진을 외운 과적합 상태입니다.
+성공하면 다음 파일들이 생성됩니다.
 
-## 저장한 가중치로 사진 한 장 추론
+```text
+models/learning_actual/camera_digit_model.keras
+models/learning_actual/camera_digit_int8.tflite
+arduino/camera_03_inference/model_data.h
+arduino/camera_03_inference_exercise/model_data.h
+```
 
-먼저 `data/camera_digits/2` 등에 있는 실제 PGM 파일 경로 하나를 고릅니다.
+연결을 확인한 뒤 최종 학습은 `--epochs 80`으로 실행합니다. 직접 촬영 데이터를
+사용하려면 `--data data\camera_digits` 또는 `--data data/camera_digits`를 추가합니다.
+
+## 2부: Arduino에서 실제 추론 수학 완성
+
+### 1. 학생용 스케치 열기
+
+Arduino IDE 2에서 다음 파일을 엽니다.
+
+```text
+arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
+```
+
+`____ARD`를 검색하면 TODO 8개를 찾을 수 있습니다. 긴 카메라 전처리와 시리얼
+통신은 완성된 상태이고 다음 여섯 함수만 학생이 완성합니다.
+
+```cpp
+normalizePixel(...)
+quantizeInput(...)
+dequantizeOutput(...)
+softmaxNumerator(...)
+normalizeProbability(...)
+updateBest(...)
+```
+
+### 2. ARD1~ARD2: 입력 정규화와 양자화
+
+```text
+카메라 byte 0~255
+→ float 0~1
+→ 모델 scale과 zeroPoint로 INT8 -128~127
+```
+
+`=`는 값을 저장하고 `/`는 나눗셈을 합니다. `255.0f`처럼 실수임을 표시해야
+Arduino에서 의도한 실수 나눗셈이 됩니다.
+
+### 3. ARD3: 출력 역양자화
+
+모델의 INT8 출력을 Softmax에 넣기 전에 다음 관계를 반대로 적용합니다.
+
+```text
+실수값 = (INT8값 - zeroPoint) × scale
+```
+
+### 4. ARD4~ARD5: 안정적인 Softmax
+
+Softmax는 logits를 양수 분자로 바꾸고 전체 합으로 나눕니다. `expf(logit)` 대신
+`expf(logit - maxLogit)`을 사용하면 지수값이 지나치게 커지는 것을 막을 수 있습니다.
+
+### 5. ARD6~ARD8: 최댓값 선택
+
+C++의 조건문과 대입을 사용합니다.
+
+```cpp
+if (조건) {
+  변수 = 값;
+}
+```
+
+현재 확률이 최고 확률보다 클 때 최고 확률과 최고 위치를 함께 바꿔야 합니다.
+
+### 6. Arduino 빈칸 검사
 
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\nn_from_scratch_exercise.py `
-  --load-model models\learning\manual_mlp.npz `
-  --predict data\camera_digits\2\실제파일이름.pgm
+.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part arduino
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/nn_from_scratch_exercise.py \
-  --load-model models/learning/manual_mlp.npz \
-  --predict data/camera_digits/2/실제파일이름.pgm
+./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part arduino
 ```
 
-여기서는 가중치를 변경하지 않습니다. 저장된 `w1`, `b1`, `w2`, `b2`를 불러와 순전파와 `argmax`만 실행합니다.
+검사 통과 후 Arduino IDE의 체크 버튼으로 실제 C++ 컴파일까지 확인합니다.
 
-## 정답 확인
+### 7. 업로드와 실제 추론
 
-먼저 직접 시도하고 자동 검사 결과를 고친 뒤 다음 파일을 비교합니다.
+1. Python 학습으로 학생용 폴더에 `model_data.h`가 생성됐는지 확인합니다.
+2. `Arduino Nano 33 BLE`와 실제 포트를 선택합니다.
+3. 학생용 스케치를 컴파일하고 업로드합니다.
+4. Arduino IDE 시리얼 모니터를 닫습니다.
+5. 기존 GUI를 실행합니다.
 
-```text
-python/learning/nn_from_scratch_answer.py
-```
-
-정답 프로그램도 똑같이 실행할 수 있습니다.
-
-Windows:
+Windows 예시:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\nn_from_scratch_answer.py --source mnist --digits 0123 --per-digit 500 --epochs 15
+.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/nn_from_scratch_answer.py --source mnist --digits 0123 --per-digit 500 --epochs 15
+./.venv/bin/python python/run_inference_gui.py --port <PORT>
 ```
 
-## 직접 바꿔 볼 실험
+학생용 스케치도 완성본과 같은 `PING`, `PREDICT`, `RESULT` 통신 규칙을 사용하므로
+GUI를 수정할 필요가 없습니다.
 
-코드를 완성했다면 한 번에 하나만 바꾸고 결과를 기록합니다.
+## 정답 확인 방법
 
-| 바꿀 값 | 시험할 값 | 관찰할 것 |
-|---|---|---|
-| `--learning-rate` | `0.001`, `0.1`, `1.0` | 손실이 느리게 감소하는지, 튀거나 `nan`이 되는지 |
-| `--hidden-size` | `8`, `64`, `256` | 표현력, 학습 시간, 과적합 변화 |
-| `--batch-size` | `1`, `16`, `128` | 손실의 흔들림과 학습 속도 |
-| `--epochs` | `1`, `15`, `100` | 부족한 학습과 과적합 차이 |
-| `--per-digit` | `20`, `100`, `1000` | 데이터 수가 검증 정확도에 주는 영향 |
-
-추가 코드 실험도 가능합니다.
-
-1. `relu`를 단순히 `return z`로 바꿔 정확도를 비교합니다.
-2. 가중치 수정에서 `-`를 `+`로 바꾸면 손실이 어떻게 되는지 확인한 뒤 즉시 되돌립니다.
-3. 입력을 `/ 255.0`으로 정규화하지 않았을 때 Softmax와 학습 안정성을 비교합니다.
-4. `seed`를 바꾸어 초기 가중치와 데이터 순서가 결과에 주는 영향을 봅니다.
-
-## 기존 CNN 및 Arduino 코드와의 관계
-
-이 실습의 MLP는 원리를 눈으로 보기 위해 단순하게 만든 PC 학습 모델입니다. 실제 프로젝트의 `train_camera_model.py`는 이미지의 공간적 모양을 더 잘 배우는 CNN을 TensorFlow로 학습하고, INT8 TFLite 모델과 `model_data.h`를 생성합니다.
-
-### 현재 실제 프로젝트에서 데이터가 학습되는 위치
-
-실제 촬영 데이터를 학습하는 코드는 `python/train_camera_model.py`이며, 실제
-가중치 학습이 시작되는 호출은 다음 `model.fit()`입니다.
-
-```python
-history = model.fit(
-    x_aug,
-    y_aug,
-    validation_data=(x_val, y_val),
-    epochs=args.epochs,
-    batch_size=32,
-    callbacks=[...],
-)
-```
-
-- `x_aug`: 촬영한 28×28 이미지를 위치·밝기·노이즈로 증강한 학습 입력
-- `y_aug`: 각 이미지의 정답 클래스
-- `x_val`, `y_val`: 가중치를 수정하지 않고 성능만 확인하는 검증 데이터
-- `epochs`: 전체 학습 데이터를 반복해서 보는 횟수
-- `batch_size`: 가중치를 한 번 수정할 때 사용하는 이미지 수
-
-이 호출 안에서 TensorFlow가 순전파, 교차엔트로피 손실, 역전파, Adam 가중치
-수정을 자동으로 반복합니다. 학습이 끝나면 같은 스크립트가 모델을 INT8
-TFLite로 바꾸고 Arduino용 `model_data.h`를 생성합니다.
-
-### 실제 실행 파일 세 개의 연결
+Python은 충분히 시도한 뒤 다음 파일과 비교합니다.
 
 ```text
-train_camera_model.py
-    └─ PC에서 CNN 학습 → model_data.h 생성
-                              ↓ Arduino IDE로 03 업로드
-camera_03_inference.ino
-    └─ 보드에서 카메라 전처리 → interpreter->Invoke()로 실제 추론
-                              ↓ 시리얼 결과 전송
-run_inference_gui.py
-    └─ 촬영 명령 전송 → 원본·AI 입력·확률·예측 숫자 화면 표시
+python/learning/train_camera_model_answer.py
 ```
 
-`run_inference_gui.py`는 AI 모델을 직접 실행하지 않습니다. 실제 추론은 보드의
-`camera_03_inference.ino`가 수행하고 GUI는 명령과 결과를 주고받아 보여 줍니다.
+교사가 정답 흐름을 실행하려면 학생용과 같은 명령에서 파일 이름만 바꿉니다.
 
-### learning 폴더는 자동으로 연결되지 않음
+```powershell
+.\.venv\Scripts\python.exe python\learning\train_camera_model_answer.py --epochs 3
+```
 
-`python/learning/`의 파일은 위 실제 파이프라인에 자동으로 import되거나 실행되지
-않습니다. 학생이 터미널에서 해당 파일을 직접 실행할 때만 작동합니다.
+Arduino 정답은 실제 완성 코드의 `prepareInput()`과 `sendPrediction()`에 있습니다.
 
 ```text
-python/learning의 수동 MLP → models/learning/manual_mlp.npz → PC 실습용 추론
+arduino/camera_03_inference/camera_03_inference.ino
 ```
 
-이 `.npz` 파일은 `model_data.h`로 자동 변환되지 않으므로 현재 Arduino 추론에는
-영향을 주지 않습니다. `learning`은 `model.fit()`이 내부에서 자동으로 수행하는
-계산을 학생 눈에 보이게 풀어 쓴 준비 실습입니다.
+처음부터 복사하지 말고 각 식이 정규화, 양자화, Softmax, argmax 중 어떤 역할인지
+말로 설명한 다음 비교하는 것을 권장합니다.
 
-두 모델의 개념적 흐름은 같습니다.
+## 토론 질문
 
-| 직접 구현 실습 | 실제 프로젝트 |
-|---|---|
-| `forward()` | TensorFlow/TFLite 모델 실행 |
-| `cross_entropy()` | `SparseCategoricalCrossentropy` |
-| 직접 작성한 역전파 | TensorFlow 자동 미분 |
-| 직접 작성한 SGD | Adam optimizer |
-| `.npz` 가중치 | `.keras`, `.tflite`, `model_data.h` |
-| PC에서 `predict()` | Nano 33 BLE Sense에서 `interpreter->Invoke()` |
+1. 0~255 값을 정규화하지 않으면 학습에 어떤 변화가 생길까?
+2. 마지막 Dense의 출력 개수를 `4`로 고정하지 않고 `class_count`로 쓰는 이유는?
+3. `from_logits=False`로 잘못 지정하면 손실 계산은 무엇을 오해할까?
+4. `fit()` 전후 모델 가중치는 같을까?
+5. Arduino의 `Invoke()` 전후 중 어느 시점에 모델 계산이 실제로 일어날까?
+6. Softmax에서 모든 logits에 같은 `maxLogit`을 빼도 최종 순위가 유지되는 이유는?
+7. 최고 확률만 갱신하고 `bestIndex`를 갱신하지 않으면 어떤 결과가 나올까?
 
-직접 구현한 `.npz` 파일은 Arduino가 바로 읽는 모델 형식이 아닙니다. 원리를 익힌 다음 실제 보드 배포는 기존 `train_camera_model.py` 또는 `train_mnist_model.py`로 생성한 `model_data.h`를 사용합니다.
+## 의도적으로 빈칸에서 제외한 부분
 
-## 실습 후 답해야 할 질문
+- 종이·숫자 자동 탐지와 28x28 전처리
+- 카메라 프레임 수신과 시리얼 프로토콜
+- TensorFlow Lite 연산 등록과 텐서 메모리 할당
+- C 헤더 바이트 배열 생성
 
-1. Softmax 전에 최댓값을 빼도 확률이 바뀌지 않는 이유는 무엇인가?
-2. 정답 확률이 올라가면 교차엔트로피 손실은 어떻게 변하는가?
-3. 왜 가중치에서 기울기를 더하지 않고 빼는가?
-4. 학습에는 정답 라벨이 필요하지만 추론에는 필요하지 않은 이유는 무엇인가?
-5. 학습 정확도와 검증 정확도의 차이가 커지는 것은 무엇을 뜻하는가?
-6. Arduino 추론 중에는 어떤 TODO 단계가 실행되고 어떤 단계는 실행되지 않는가?
+이 부분은 실제로 사용되지만 첫 수업에서 빈칸으로 만들면 AI 학습보다 배열 경계,
+메모리, 통신 오류 해결에 시간이 더 많이 듭니다. 학생이 작성한 핵심 함수는 이미
+이 완성 코드에 연결되어 있으므로 실습 결과는 실제 모델과 보드에서 실행됩니다.

@@ -1,283 +1,146 @@
-# 0단계: Python과 NumPy 문법부터 채우기
+# 실제 AI 코드에 필요한 Python·NumPy 문법
 
-이 문서는 Python을 처음 보는 학생을 위한 준비 실습입니다. 신경망 수식보다 먼저 코드의 점(`.`), 괄호, 배열, 함수가 무엇인지 익힙니다.
+이 문서는 별도의 장난감 문법 문제를 풀기 위한 문서가 아닙니다. 바로 다음 단계의
+`train_camera_model_exercise.py`에서 실제 카메라 CNN을 완성할 때 필요한 문법만
+먼저 익힙니다.
 
-## Arduino부터 배워야 하나요?
+문법을 모두 외운 뒤 시작할 필요는 없습니다. 아래 예제를 한 번 읽고, 학생용
+코드의 각 TODO 바로 위에 있는 `문법 미니 노트`를 다시 보면서 작성하세요.
 
-이 프로젝트의 역할은 다음처럼 나뉩니다.
-
-| 하고 싶은 일 | 주로 수정할 언어·파일 |
-|---|---|
-| 학습 데이터 읽기·변형 | Python |
-| 신경망 구조, Softmax, 손실함수, 역전파 수정 | Python |
-| 학습률, epoch, batch 크기 실험 | Python |
-| PC에서 학습·정확도 확인 | Python |
-| 카메라에서 종이와 숫자 찾기 | Python과 Arduino 양쪽 |
-| 학습 완료 모델을 보드에서 실행 | Arduino C++ |
-| 센서 입력, 버튼, LED, 시리얼 출력 수정 | Arduino C++ |
-
-따라서 **AI가 어떻게 학습하는지 직접 코딩하는 수업은 Python부터 시작하는 것이 맞습니다.** Arduino는 학습이 끝난 모델을 실제 기기에서 실행하는 단계에서 배워도 됩니다.
-
-## `import numpy as np`는 무슨 뜻인가요?
+## 문자열, 숫자, 불리언, 변수
 
 ```python
-import numpy as np
+activation = "relu"   # 문자열: 따옴표 필요
+batch_size = 32       # 정수: 따옴표 없음
+pixel_max = 255.0     # 실수: 소수점 있음
+from_logits = True    # 불리언: True 또는 False
+class_count = 4       # 변수 이름: 따옴표 없음
 ```
 
-- `numpy`: 배열과 행렬 계산 도구가 들어 있는 외부 라이브러리입니다.
-- `import`: 다른 파일이나 라이브러리의 기능을 가져옵니다.
-- `as np`: 긴 이름 `numpy` 대신 짧은 별명 `np`를 사용하겠다는 뜻입니다.
+`"class_count"`는 글자 자체이고, `class_count`는 변수 안에 저장된 값입니다.
+CNN의 마지막 출력 수에는 글자가 아니라 변수 `class_count`가 들어가야 합니다.
 
-따라서 아래 두 표현은 같은 의미입니다.
+## 점과 괄호
 
 ```python
-numpy.array([1, 2, 3])
-np.array([1, 2, 3])
+np.asarray(images)
+model.compile(...)
+model.fit(...)
 ```
 
-보통 전 세계 NumPy 예제에서 `np`라는 별명을 사용합니다.
+- `np.asarray`: `np`라는 NumPy 도구 상자에서 `asarray` 함수를 찾습니다.
+- `model.compile`: `model` 객체가 가진 학습 설정 기능을 찾습니다.
+- 괄호 `()` 안에는 함수에 전달할 값을 씁니다.
 
-## 점 `.`은 왜 사용하나요?
+즉, 점 `.`은 “앞의 대상이 가진 기능이나 정보에 접근한다”는 뜻입니다.
 
-점은 **앞에 있는 대상이 가지고 있는 기능이나 정보에 접근한다**는 표시입니다.
+## 위치인자와 키워드 인자
 
 ```python
-np.array
+tf.keras.layers.Conv2D(8, 3, activation="relu")
 ```
 
-`np`라는 도구 상자 안에서 `array`라는 기능을 찾는다는 뜻입니다.
+- `8`, `3`: 순서로 의미를 구분하는 위치인자
+- `activation="relu"`: 이름을 직접 지정하는 키워드 인자
+- `=`: 오른쪽 값을 왼쪽 이름에 전달하거나 저장
+
+비교할 때는 `==`, 더 큰지 확인할 때는 `>`를 사용합니다. 저장하는 `=`와
+같은지 비교하는 `==`는 역할이 다릅니다.
+
+## 리스트와 튜플
 
 ```python
-image.shape
+layers = [layer1, layer2, layer3]
+shape = (28, 28, 1)
 ```
 
-`image` 배열이 가지고 있는 `shape` 정보를 가져온다는 뜻입니다.
+- 대괄호 `[]`: 여러 항목을 순서대로 담는 리스트
+- 소괄호 `(28, 28, 1)`: 이미지의 높이·너비·채널 모양을 나타내는 튜플
+- `metrics=["accuracy"]`: 평가 기준을 하나 이상 받을 수 있어 리스트로 전달
+
+## 배열과 shape
 
 ```python
-image.reshape(1, 784)
+images.shape
 ```
 
-`image` 배열이 가지고 있는 `reshape` 기능을 실행한다는 뜻입니다.
-
-다음 세 종류를 구별하면 좋습니다.
-
-| 코드 | 종류 | 의미 |
-|---|---|---|
-| `np.array(...)` | 라이브러리 함수 | NumPy 도구 상자의 배열 생성 기능 실행 |
-| `image.reshape(...)` | 배열의 메서드 | `image`가 가진 모양 변경 기능 실행 |
-| `image.shape` | 배열의 속성 | `image`가 가진 모양 정보 읽기 |
-
-함수나 메서드를 실행할 때는 `()`가 붙지만 단순한 정보인 속성에는 보통 `()`가 없습니다.
-
-## 함수 한 개 읽는 법
+이미지가 80장이라면 처음 읽은 배열은 보통 `(80, 28, 28)`입니다. CNN은 채널
+축까지 필요하므로 `(80, 28, 28, 1)`로 바꿉니다.
 
 ```python
-def make_array(numbers):
-    result = np.array(numbers)
-    return result
+array[..., np.newaxis]
 ```
 
-한 줄씩 읽으면 다음과 같습니다.
+- `...`: 앞쪽 축은 그대로 유지
+- `np.newaxis`: 길이가 1인 새 축 추가
 
-1. `def`: 새로운 함수를 정의합니다.
-2. `make_array`: 함수 이름입니다.
-3. `numbers`: 함수가 받을 입력입니다.
-4. `:`: 들여쓰기된 함수 내용이 시작됩니다.
-5. `result =`: 오른쪽 계산 결과를 왼쪽 이름에 저장합니다.
-6. `return`: 함수 밖으로 결과를 돌려줍니다.
-
-함수 사용은 다음과 같습니다.
+## 배열 전체에 한 번에 계산하기
 
 ```python
-answer = make_array([1, 2, 3])
+normalized = pixels / 255.0
 ```
 
-## 괄호와 대괄호의 차이
+NumPy 배열을 실수 하나로 나누면 반복문을 직접 쓰지 않아도 모든 픽셀에 같은
+나눗셈이 적용됩니다. 0~255 픽셀이 0~1 범위로 바뀝니다.
 
-### 소괄호 `()`
-
-함수를 실행하거나 설정값을 전달합니다.
+## 함수 만들기와 결과 돌려주기
 
 ```python
-np.sum(values, axis=1)
+def select_best_index(scores):
+    return int(np.argmax(scores))
 ```
 
-### 대괄호 `[]`
+- `def`: 함수를 정의
+- `scores`: 함수가 받는 값
+- `return`: 계산 결과를 함수 밖으로 돌려줌
+- `np.argmax`: 가장 큰 값의 위치를 반환
+- `int(...)`: NumPy 정수를 일반 Python 정수로 변환
 
-목록을 만들거나 특정 위치의 값을 선택합니다.
+## 들여쓰기
+
+Python은 들여쓰기로 코드의 소속을 구분합니다.
 
 ```python
-numbers = [10, 20, 30]
-print(numbers[0])
+if confidence > best_confidence:
+    best_confidence = confidence
 ```
 
-Python은 위치를 0부터 세므로 `numbers[0]`은 `10`입니다.
+두 번째 줄은 `if` 안에 있으므로 공백 4칸을 유지해야 합니다. 탭과 공백을 섞지
+않는 것이 안전합니다.
 
-딕셔너리에서는 위치 대신 이름으로 값을 찾습니다.
+## Arduino C++에서 추가되는 문법
 
-```python
-parameters = {"w1": 0.5, "b1": 0.1}
-weight = parameters["w1"]
+```cpp
+float normalizePixel(byte pixel) {
+  return pixel / 255.0f;
+}
 ```
 
-## `np.array`는 무엇인가요?
+- `float`: 함수가 소수를 반환한다는 뜻
+- `byte pixel`: `pixel`이라는 0~255 정수를 받음
+- `{}`: 함수나 조건문의 범위
+- `;`: 한 문장의 끝
+- `255.0f`: Arduino에서 사용하는 float 실수
 
-Python 리스트를 빠른 숫자 계산용 NumPy 배열로 바꿉니다.
+참조 기호 `&`가 붙은 매개변수를 수정하면 함수 밖의 원래 변수도 바뀝니다.
 
-```python
-python_list = [1, 2, 3]
-numpy_array = np.array(python_list)
+```cpp
+void updateBest(float probability, float& bestProbability) {
+  if (probability > bestProbability) {
+    bestProbability = probability;
+  }
+}
 ```
 
-NumPy 배열은 모든 원소에 계산을 한 번에 적용할 수 있습니다.
+## 이제 실제 코드로 이동
 
-```python
-numpy_array * 2
-# [2, 4, 6]
-```
-
-## `.shape`는 무엇인가요?
-
-배열의 모양을 알려주는 속성입니다.
-
-```python
-image = np.zeros((28, 28))
-print(image.shape)
-# (28, 28)
-```
-
-숫자 사진 32장을 한 번에 펼쳐 넣으면 다음 모양을 가질 수 있습니다.
+문법을 읽었다면 [실제 학습·추론 코드 빈칸 실습](AI_CODE_LAB.md)으로 이동합니다.
+학생은 다음 두 파일을 직접 수정합니다.
 
 ```text
-(32, 784)
+python/learning/train_camera_model_exercise.py
+arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 ```
 
-- `32`: 이미지 개수, 즉 미니배치 크기
-- `784`: 이미지 한 장의 `28 × 28` 픽셀
-
-## `axis`는 무엇인가요?
-
-어느 방향으로 계산할지 지정합니다.
-
-```python
-values = np.array([
-    [1, 2, 3],
-    [4, 5, 6],
-])
-```
-
-```python
-np.sum(values, axis=0)  # 위아래로 더함: [5, 7, 9]
-np.sum(values, axis=1)  # 각 가로줄을 더함: [6, 15]
-```
-
-Softmax에서는 이미지 한 장의 숫자별 점수들을 더해야 하므로 주로 `axis=1`을 사용합니다.
-
-## `=`와 `==`는 다릅니다
-
-```python
-score = 10
-```
-
-`=`은 값을 저장합니다.
-
-```python
-score == 10
-```
-
-`==`는 두 값이 같은지 질문하며 결과는 `True` 또는 `False`입니다.
-
-```python
-z > 0
-```
-
-이 비교는 ReLU 역전파에서 양수였던 위치를 찾을 때 사용합니다.
-
-## `*`, `@`, `.T`의 차이
-
-```python
-a * b
-```
-
-`*`는 같은 위치의 원소끼리 곱합니다.
-
-```python
-a @ b
-```
-
-`@`는 행렬 곱셈입니다. 신경망에서 입력과 가중치를 연결할 때 사용합니다.
-
-```python
-a.T
-```
-
-`.T`는 행과 열을 바꿉니다. 역전파에서 가중치와 같은 모양의 기울기를 만들 때 사용합니다.
-
-## 0단계 학생용 빈칸
-
-다음 파일을 엽니다.
-
-```text
-python/learning/python_numpy_basics_exercise.py
-```
-
-각 함수에는 `____`가 딱 한 곳씩 있습니다.
-
-```python
-def get_shape(values):
-    return values.____
-```
-
-점 뒤에 배열의 모양을 알려주는 이름을 넣는 식입니다. 복잡한 신경망 수식을 한꺼번에 작성하지 않고 다음 문법을 하나씩 연습합니다.
-
-1. `np.array`
-2. `.shape`
-3. `np.maximum`
-4. `np.max`
-5. `np.sum`
-6. `.T`
-7. `np.matmul`
-8. 딕셔너리의 `"w1"`
-9. `np.arange`
-10. `np.log`
-11. `np.mean`
-12. `np.argmax`
-13. `np.subtract`
-
-## 0단계 자동 확인
-
-Windows PowerShell:
-
-```powershell
-.\.venv\Scripts\python.exe python\learning\check_python_numpy_basics.py
-```
-
-macOS/Ubuntu:
-
-```bash
-./.venv/bin/python python/learning/check_python_numpy_basics.py
-```
-
-처음에는 `0/13 통과`가 정상입니다. 위에서부터 빈칸 하나만 채우고 저장한 다음 같은 명령을 다시 실행합니다.
-
-정답은 다음 파일에 있습니다.
-
-```text
-python/learning/python_numpy_basics_answer.py
-```
-
-직접 생각하고 자동 확인을 해본 뒤에 정답을 비교하세요.
-
-## 다음 단계
-
-0단계에서 `13/13 통과`가 나오면 [Softmax·역전파·추론 실습](AI_CODE_LAB.md)으로 이동합니다.
-
-```text
-0단계: Python·NumPy 한 줄 문법 빈칸
-   ↓
-1단계: ReLU·Softmax·손실·역전파 함수 빈칸
-   ↓
-2단계: MNIST 또는 카메라 사진 실제 학습
-   ↓
-3단계: Arduino에서 학습 완료 모델 추론
-```
+두 파일을 완성하면 공개 예제나 직접 촬영한 데이터를 실제로 학습하고, 생성된
+INT8 모델을 Nano 33 BLE Sense Lite에 업로드해 같은 추론 GUI로 확인할 수 있습니다.
