@@ -1,7 +1,7 @@
 # 실제 AI 코드에 필요한 Python·NumPy 문법
 
 이 문서는 별도의 장난감 문법 문제를 풀기 위한 문서가 아닙니다. 바로 다음 단계의
-`train_camera_model_exercise.py`에서 실제 카메라 CNN을 완성할 때 필요한 문법만
+`python/train_camera_model.py`에서 실제 카메라 CNN을 완성할 때 필요한 문법만
 먼저 익힙니다.
 
 문법을 모두 외운 뒤 시작할 필요는 없습니다. 아래 예제를 한 번 읽고, 학생용
@@ -138,7 +138,7 @@ void updateBest(float probability, float& bestProbability) {
 학생은 다음 두 파일을 직접 수정합니다.
 
 ```text
-python/learning/train_camera_model_exercise.py
+python/train_camera_model.py
 arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 ```
 

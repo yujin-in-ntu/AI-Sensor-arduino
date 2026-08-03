@@ -17,19 +17,18 @@
 
 | 파일 | 학생이 작성하는 내용 |
 |---|---|
-| `python/learning/train_camera_model_exercise.py` | 정규화, CNN, compile, fit, argmax |
+| `python/train_camera_model.py` | 실제 기본 학습 파일에서 정규화, CNN, compile, fit, argmax |
 | `arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino` | 입력 양자화, 출력 역양자화, Softmax, 최댓값 선택 |
 
 다음 파일은 비교와 검사에 사용합니다.
 
 | 파일 | 역할 |
 |---|---|
-| `python/learning/check_actual_pipeline_exercise.py` | 남은 빈칸과 Python 함수 동작 자동 검사 |
-| `python/learning/train_camera_model_answer.py` | 교사용 Python 정답 실행 파일 |
-| `python/train_camera_model.py` | 실제 완성 학습 코드 |
+| `python/check_exercises.py` | 실제 파일에 남은 빈칸과 Python 함수 동작 자동 검사 |
 | `arduino/camera_03_inference/camera_03_inference.ino` | 실제 완성 Arduino 추론 코드 |
 
-처음에는 정답 파일과 완성 코드를 열지 않고 학생용 파일의 힌트만 읽습니다.
+처음에는 이 문서 아래의 정답표와 Arduino 완성본을 보지 않고 TODO 위의 힌트만
+읽습니다.
 
 ## 시작 전 문법 준비
 
@@ -44,7 +43,7 @@
 ### 1. 학생용 파일 열기
 
 ```text
-python/learning/train_camera_model_exercise.py
+python/train_camera_model.py
 ```
 
 편집기에서 `____PY`를 검색하면 TODO 10개를 차례대로 찾을 수 있습니다.
@@ -111,13 +110,13 @@ INT8 모델의 숫자별 출력 중 가장 큰 값의 위치를 선택합니다.
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part python
+.\.venv\Scripts\python.exe python\check_exercises.py --part python
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part python
+./.venv/bin/python python/check_exercises.py --part python
 ```
 
 빈칸이 남아 있으면 토큰별 힌트가 나옵니다. 모두 채우면 정규화, CNN 출력 크기,
@@ -131,13 +130,13 @@ Adam·logits 손실, 실제 1 epoch `fit()`, argmax를 작은 입력으로 검�
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\train_camera_model_exercise.py --epochs 3
+.\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\learning_actual
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/train_camera_model_exercise.py --epochs 3
+./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/learning_actual
 ```
 
 성공하면 다음 파일들이 생성됩니다.
@@ -146,7 +145,6 @@ macOS/Ubuntu:
 models/learning_actual/camera_digit_model.keras
 models/learning_actual/camera_digit_int8.tflite
 arduino/camera_03_inference/model_data.h
-arduino/camera_03_inference_exercise/model_data.h
 ```
 
 연결을 확인한 뒤 최종 학습은 `--epochs 80`으로 실행합니다. 직접 촬영 데이터를
@@ -217,20 +215,20 @@ if (조건) {
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part arduino
+.\.venv\Scripts\python.exe python\check_exercises.py --part arduino
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part arduino
+./.venv/bin/python python/check_exercises.py --part arduino
 ```
 
 검사 통과 후 Arduino IDE의 체크 버튼으로 실제 C++ 컴파일까지 확인합니다.
 
 ### 7. 업로드와 실제 추론
 
-1. Python 학습으로 학생용 폴더에 `model_data.h`가 생성됐는지 확인합니다.
+1. Python 학습으로 `arduino/camera_03_inference/model_data.h`가 생성됐는지 확인합니다.
 2. `Arduino Nano 33 BLE`와 실제 포트를 선택합니다.
 3. 학생용 스케치를 컴파일하고 업로드합니다.
 4. Arduino IDE 시리얼 모니터를 닫습니다.
@@ -253,17 +251,22 @@ GUI를 수정할 필요가 없습니다.
 
 ## 정답 확인 방법
 
-Python은 충분히 시도한 뒤 다음 파일과 비교합니다.
+Python은 충분히 시도한 뒤 이 문서 아래의 정답표와 비교합니다. 별도의 학습 코드
+복사본은 두지 않습니다. 학생이 수정하는 `python/train_camera_model.py` 자체가
+README의 기본 명령과 실제 카메라 데이터에 그대로 사용됩니다.
 
-```text
-python/learning/train_camera_model_answer.py
-```
-
-교사가 정답 흐름을 실행하려면 학생용과 같은 명령에서 파일 이름만 바꿉니다.
-
-```powershell
-.\.venv\Scripts\python.exe python\learning\train_camera_model_answer.py --epochs 3
-```
+| 빈칸 | 정답 |
+|---|---|
+| PY1 | `255.0` |
+| PY2 | `"relu"` |
+| PY3 | `2` |
+| PY4 | `class_count` |
+| PY5 | `"adam"` |
+| PY6 | `True` |
+| PY7 | `"accuracy"` |
+| PY8 | `fit` |
+| PY9 | `32` |
+| PY10 | `argmax` |
 
 Arduino 정답은 실제 완성 코드의 `prepareInput()`과 `sendPrediction()`에 있습니다.
 

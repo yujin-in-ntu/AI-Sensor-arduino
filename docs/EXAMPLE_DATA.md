@@ -140,7 +140,7 @@ Ubuntu:
 
 ## 예제 데이터로 실제 CNN 코드 빈칸 실습
 
-학생용 `train_camera_model_exercise.py`의 TODO를 채우면 이 공개 예제 데이터를
+실제로 실행되는 `python/train_camera_model.py`의 TODO를 채우면 이 공개 예제 데이터를
 실제로 CNN 학습하고 Arduino용 `model_data.h`를 생성할 수 있습니다. 별도의 PC용
 장난감 모델을 만들지 않습니다.
 
@@ -149,13 +149,13 @@ Ubuntu:
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\check_actual_pipeline_exercise.py --part python
+.\.venv\Scripts\python.exe python\check_exercises.py --part python
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/check_actual_pipeline_exercise.py --part python
+./.venv/bin/python python/check_exercises.py --part python
 ```
 
 검사 통과 후 3 epoch로 실제 연결을 빠르게 확인합니다.
@@ -163,13 +163,13 @@ macOS/Ubuntu:
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\learning\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3
+.\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
 ```
 
 macOS/Ubuntu:
 
 ```bash
-./.venv/bin/python python/learning/train_camera_model_exercise.py --data data/example_camera_digits --digits 0123 --epochs 3
+./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
 ```
 
 성공하면 완성본과 학생용 Arduino 폴더 양쪽에 같은 모델 헤더가 생성됩니다.

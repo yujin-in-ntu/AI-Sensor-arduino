@@ -527,6 +527,25 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 수집 GUI를 닫습니다. Arduino에 02 스케치가 올라가 있어도 PC 학습에는 문제가
 없습니다.
 
+처음 한 번은 `python/train_camera_model.py`를 편집기로 열고 `____PY1____`부터
+`____PY10____`까지 실제 학습 코드의 빈칸을 채웁니다. 각 빈칸 바로 위에 Python
+문법과 생각할 질문이 적혀 있습니다. 자세한 해설은
+[실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 봅니다.
+
+Windows에서 작성한 코드를 먼저 검사합니다.
+
+```powershell
+.\.venv\Scripts\python.exe python\check_exercises.py --part python
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/check_exercises.py --part python
+```
+
+5개 검사를 모두 통과한 뒤 아래의 같은 `train_camera_model.py`를 실행합니다.
+
 Windows:
 
 ```powershell
@@ -867,16 +886,14 @@ python/
 ├─ train_mnist_model.py       MNIST 다운로드·학습
 ├─ run_inference_gui.py       Arduino 추론 결과 GUI
 ├─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
-└─ learning/
-   ├─ train_camera_model_exercise.py       실제 CNN 핵심 빈칸
-   ├─ check_actual_pipeline_exercise.py    Python·Arduino 자동 검사
-   └─ train_camera_model_answer.py         실제 CNN 교사용 정답
+└─ check_exercises.py         실제 Python·Arduino 빈칸 자동 검사
 ```
 
-학생용 Python 파일은 실제 데이터 분리·증강·INT8 변환·Arduino 헤더 생성을
-`train_camera_model.py`에서 재사용합니다. 학생용 Arduino 스케치도 기존 GUI와 같은
-통신 규칙을 사용합니다. [실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 완료하면
-학생이 작성한 코드가 실제 모델 학습부터 보드 추론까지 그대로 실행됩니다.
+학생은 별도의 `learning` 복사본이 아니라 README의 기본 명령이 실행하는
+`python/train_camera_model.py`에서 정규화·CNN·`compile()`·`fit()`·`argmax`를
+직접 완성합니다. 학생용 Arduino 스케치도 기존 GUI와 같은 통신 규칙을 사용합니다.
+[실제 코드 빈칸 실습](docs/AI_CODE_LAB.md)을 완료하면 학생이 작성한 코드가 실제
+모델 학습부터 보드 추론까지 그대로 실행됩니다.
 
 ## 전체 흐름 한눈에 보기
 
@@ -897,13 +914,15 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
 `model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
 추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
-`python/learning/train_camera_model_exercise.py`는 같은 실제 학습·변환 함수를
-사용하므로 완성 후 별도의 장난감 모델이 아니라 Arduino용 `model_data.h`를 만듭니다.
+`train_camera_model.py` 안의 `____PY1____`~`____PY10____`을 채우기 전에는 학습을
+시작할 수 없습니다. 이것은 학생이 완성한 문장이 실제 학습에 사용되게 하기 위한
+의도적인 빈칸입니다.
 
 ## 가장 중요한 사용 규칙
 
 - Python 프로그램을 실행하기 전에 Arduino IDE의 **시리얼 모니터와 시리얼 플로터를 모두 닫습니다.** 한 포트는 한 프로그램만 열 수 있습니다.
 - `02`를 업로드한 상태에서는 미리보기와 데이터 수집을 실행합니다.
+- 첫 학습 전 `python/train_camera_model.py`의 Python 빈칸을 채우고 `python/check_exercises.py --part python` 검사를 통과합니다.
 - 모델을 학습하면 `arduino/camera_03_inference/model_data.h`가 새로 생성됩니다.
 - 모델이 바뀔 때마다 `03`을 다시 컴파일하고 업로드해야 합니다.
 - 빨간 상자는 종이, 초록 상자는 감지된 숫자입니다.
@@ -921,8 +940,6 @@ models/camera/                 직접 촬영 모델
 models/mnist/                  MNIST 모델
 arduino/camera_03_inference/model_data.h
                                다음 업로드에 포함될 현재 모델
-arduino/camera_03_inference_exercise/model_data.h
-                               학생용 추론 스케치에 포함될 같은 모델
 ```
 
 개인의 촬영 데이터, 학습 모델, 생성된 `model_data.h`는 Git에 올리지 않도록 `.gitignore`에 등록되어 있습니다. 저장소를 새로 복제한 학생은 직접 데이터를 모으거나 MNIST를 학습해 자신의 헤더를 생성합니다.

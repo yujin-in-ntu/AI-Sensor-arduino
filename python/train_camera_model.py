@@ -1,4 +1,8 @@
-"""카메라 숫자 사진을 CNN으로 학습하고 Arduino용 INT8 모델을 만듭니다."""
+"""카메라 숫자 사진을 CNN으로 학습하고 Arduino용 INT8 모델을 만듭니다.
+
+이 파일은 README의 기본 학습 명령이 실제로 실행하는 코드입니다. 학생은 별도의
+연습용 신경망이 아니라 이 파일의 ``____PY...____`` 10곳을 직접 완성합니다.
+"""
 
 from __future__ import annotations
 
@@ -26,6 +30,18 @@ def read_pgm(path: Path) -> np.ndarray:
     return np.frombuffer(parts[3], dtype=np.uint8).reshape(IMAGE_SIZE, IMAGE_SIZE)
 
 
+def normalize_images(images: list[np.ndarray]) -> np.ndarray:
+    """uint8 이미지 목록을 CNN 입력인 float32 0~1 배열로 바꿉니다."""
+
+    # TODO PY1: 데이터 정규화
+    # 문법 미니 노트
+    # - np.asarray(목록, dtype=자료형)은 목록을 NumPy 배열로 바꿉니다.
+    # - [..., np.newaxis]는 맨 뒤에 채널 축 1개를 추가합니다.
+    # - / 연산은 배열의 모든 값에 한꺼번에 적용됩니다.
+    # 생각 질문: 카메라 픽셀의 최댓값을 어떤 실수로 나누면 0~1이 될까요?
+    return np.asarray(images, dtype=np.float32)[..., np.newaxis] / ____PY1____
+
+
 def load_dataset(root: Path, digits: list[int]) -> tuple[np.ndarray, np.ndarray]:
     images: list[np.ndarray] = []
     labels: list[int] = []
@@ -37,7 +53,8 @@ def load_dataset(root: Path, digits: list[int]) -> tuple[np.ndarray, np.ndarray]
             labels.append(class_index)
     if not images:
         raise ValueError("카메라 학습 이미지가 없습니다.")
-    x = np.asarray(images, dtype=np.float32)[..., np.newaxis] / 255.0
+    # 위에서 학생이 완성한 정규화 함수가 실제 학습 데이터에 적용됩니다.
+    x = normalize_images(images)
     y = np.asarray(labels, dtype=np.int64)
     return x, y
 
@@ -95,18 +112,94 @@ def augment(x: np.ndarray, y: np.ndarray, seed: int, copies: int = 5):
 
 
 def build_model(class_count: int) -> tf.keras.Model:
+    """실제 Arduino에 넣을 작은 CNN을 만듭니다."""
+
+    # TODO PY2~PY4: CNN 구조
+    # 문법 미니 노트
+    # - 함수(위치인자, 이름=값)는 함수를 호출하는 기본 형태입니다.
+    # - 문자열은 "따옴표"로 감쌉니다. 변수 이름에는 따옴표를 쓰지 않습니다.
+    # - Sequential([층1, 층2, ...])은 층을 위에서 아래 순서로 연결합니다.
+    # 생각 질문
+    # - 음수를 0으로 만드는 활성화 함수 이름은 무엇일까요?
+    # - 2x2 풀링의 크기는 어떤 정수 하나로 쓸 수 있을까요?
+    # - 마지막 출력 개수는 고정 숫자일까요, 함수가 받은 class_count일까요?
     return tf.keras.Sequential(
         [
             tf.keras.layers.Input(shape=(28, 28, 1)),
-            tf.keras.layers.Conv2D(8, 3, activation="relu"),
-            tf.keras.layers.MaxPooling2D(2),
+            tf.keras.layers.Conv2D(8, 3, activation=____PY2____),
+            tf.keras.layers.MaxPooling2D(____PY3____),
             tf.keras.layers.Conv2D(16, 3, activation="relu"),
             tf.keras.layers.MaxPooling2D(2),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(32, activation="relu"),
-            tf.keras.layers.Dense(class_count),  # 선택한 숫자 수만큼 점수 출력
+            tf.keras.layers.Dense(____PY4____),  # 선택한 숫자 수만큼 점수 출력
         ]
     )
+
+
+def compile_model(model: tf.keras.Model) -> tf.keras.Model:
+    """학습에 사용할 최적화 방법, 손실함수, 평가값을 지정합니다."""
+
+    # TODO PY5~PY7: compile
+    # 문법 미니 노트
+    # - optimizer="이름"처럼 Keras가 아는 이름을 문자열로 전달할 수 있습니다.
+    # - True와 False는 따옴표를 쓰지 않는 Python 불리언입니다.
+    # - metrics는 여러 평가 기준을 담으므로 ["..."] 리스트 형태입니다.
+    # 생각 질문
+    # - 이 프로젝트가 사용하는 적응형 최적화 방법은 Adam입니다.
+    # - 마지막 Dense에 Softmax가 없으므로 출력은 확률이 아닌 logits입니다.
+    # - 학습 중 화면에서 보고 싶은 평가값은 정확도입니다.
+    model.compile(
+        optimizer=____PY5____,
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(
+            from_logits=____PY6____
+        ),
+        metrics=[____PY7____],
+    )
+    return model
+
+
+def train_model(
+    model: tf.keras.Model,
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    x_val: np.ndarray,
+    y_val: np.ndarray,
+    epochs: int,
+) -> tf.keras.callbacks.History:
+    """TensorFlow가 순전파·손실·역전파·가중치 수정을 반복하게 합니다."""
+
+    # TODO PY8~PY9: 실제 학습 시작
+    # 문법 미니 노트
+    # - 객체.메서드(...)는 객체가 가진 기능을 실행합니다.
+    # - model의 학습 메서드는 f로 시작합니다.
+    # - batch_size는 한 번의 가중치 수정에 함께 보는 이미지 수인 정수입니다.
+    # 생각 질문: 현재 완성 코드에서는 32장씩 묶어 학습합니다.
+    history = model.____PY8____(
+        x_train,
+        y_train,
+        validation_data=(x_val, y_val),
+        epochs=epochs,
+        batch_size=____PY9____,
+        callbacks=[
+            tf.keras.callbacks.EarlyStopping(
+                monitor="val_loss", patience=12, restore_best_weights=True
+            )
+        ],
+        verbose=2,
+    )
+    return history
+
+
+def select_best_index(scores: np.ndarray) -> int:
+    """가장 점수가 큰 클래스의 위치를 고릅니다."""
+
+    # TODO PY10: argmax 추론
+    # 문법 미니 노트
+    # - np.함수이름(배열)은 NumPy 도구 상자의 함수를 호출한다는 뜻입니다.
+    # - 가장 큰 값 자체가 아니라 '가장 큰 값의 위치'를 반환하는 함수를 찾습니다.
+    # 생각 질문: [0.1, 0.7, 0.2]에서 필요한 답은 값 0.7일까요, 위치 1일까요?
+    return int(np.____PY10____(scores))
 
 
 def convert_int8(model: tf.keras.Model, representative: np.ndarray) -> bytes:
@@ -134,7 +227,8 @@ def quantized_accuracy(model_bytes: bytes, x: np.ndarray, y: np.ndarray) -> floa
         value = np.clip(np.rint(image / in_scale + in_zero), -128, 127).astype(np.int8)
         interpreter.set_tensor(inp["index"], value[np.newaxis])
         interpreter.invoke()
-        correct += int(np.argmax(interpreter.get_tensor(out["index"])[0]) == label)
+        scores = interpreter.get_tensor(out["index"])[0]
+        correct += int(select_best_index(scores) == label)
     return correct / len(y)
 
 
@@ -214,24 +308,10 @@ def main() -> None:
     )
     x_aug, y_aug = augment(x_train, y_train, args.seed)
 
-    model = build_model(len(digits))
-    model.compile(
-        optimizer="adam",
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        metrics=["accuracy"],
-    )
-    history = model.fit(
-        x_aug,
-        y_aug,
-        validation_data=(x_val, y_val),
-        epochs=args.epochs,
-        batch_size=32,
-        callbacks=[
-            tf.keras.callbacks.EarlyStopping(
-                monitor="val_loss", patience=12, restore_best_weights=True
-            )
-        ],
-        verbose=2,
+    # 학생이 위에서 완성한 CNN·compile·fit 함수가 실제 모델 학습에 사용됩니다.
+    model = compile_model(build_model(len(digits)))
+    history = train_model(
+        model, x_aug, y_aug, x_val, y_val, args.epochs
     )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
