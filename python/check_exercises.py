@@ -19,12 +19,11 @@ ARDUINO_EXERCISE = (
 
 PYTHON_HINTS = {
     "____PY1____": "픽셀 0~255를 0~1로 만드는 나눗셈의 오른쪽 값",
-    "____PY5____": "Adam 최적화 방법의 이름을 문자열로 작성",
-    "____PY6____": "마지막 층이 logits를 출력하는지 나타내는 불리언",
-    "____PY7____": "정확도를 뜻하는 Keras 평가 이름을 문자열로 작성",
-    "____PY8____": "model 객체의 실제 학습 메서드 이름",
-    "____PY9____": "한 번에 학습하는 이미지 수",
-    "____PY10____": "가장 큰 값의 위치를 반환하는 NumPy 함수 이름",
+    "____PY2____": "안정적인 Softmax를 위해 logits에서 행별 최댓값을 빼는 식",
+    "____PY3____": "이동한 logits에 TensorFlow 지수함수를 적용하는 식",
+    "____PY4____": "Softmax 분자를 행별 전체 합으로 나누는 식",
+    "____PY5____": "정답 확률에 음의 자연로그를 적용하는 Cross Entropy 식",
+    "____PY6____": "가장 큰 값의 위치를 반환하는 NumPy 함수 이름",
 }
 
 ARDUINO_HINTS = {
@@ -93,14 +92,26 @@ def check_python_behavior() -> None:
     )
     print("[통과 2/5] 실제 CNN 구조")
 
+    sample_logits = tf.constant([[1.0, 2.0, -1.0], [0.5, -0.5, 2.0]])
+    sample_labels = tf.constant([1, 2])
+    student_loss = training.sparse_cross_entropy_from_logits(
+        sample_labels, sample_logits
+    )
+    reference_loss = tf.keras.losses.SparseCategoricalCrossentropy(
+        from_logits=True
+    )(sample_labels, sample_logits)
+    np.testing.assert_allclose(
+        float(student_loss), float(reference_loss), rtol=1e-5, atol=1e-6
+    )
+
     model = training.compile_model(model)
     assert isinstance(model.optimizer, tf.keras.optimizers.Adam), (
         "optimizer는 Adam이어야 합니다."
     )
-    assert getattr(model.loss, "from_logits", False) is True, (
-        "loss의 from_logits는 True여야 합니다."
+    assert model.loss is training.sparse_cross_entropy_from_logits, (
+        "학생이 완성한 Cross Entropy 함수가 실제 model.compile()에 연결되어야 합니다."
     )
-    print("[통과 3/5] compile 설정")
+    print("[통과 3/5] 실제 Softmax·Cross Entropy와 compile 연결")
 
     x_train = np.zeros((8, 28, 28, 1), dtype=np.float32)
     y_train = np.array([0, 1, 2, 3, 0, 1, 2, 3], dtype=np.int64)

@@ -17,7 +17,7 @@
 
 | 파일 | 학생이 작성하는 내용 |
 |---|---|
-| `python/train_camera_model.py` | 완성된 CNN을 읽고 정규화, compile, fit, argmax를 직접 작성 |
+| `python/train_camera_model.py` | 완성된 CNN·fit을 읽고 정규화, Softmax, Cross Entropy, argmax 수식을 작성 |
 | `arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino` | 입력 양자화, 출력 역양자화, Softmax, 최댓값 선택 |
 
 다음 파일은 비교와 검사에 사용합니다.
@@ -46,9 +46,9 @@
 python/train_camera_model.py
 ```
 
-편집기에서 `____PY`를 검색하면 `PY1`, `PY5~PY10`의 TODO 7개를 찾을 수 있습니다.
-`PY2~PY4`였던 CNN 구조는 학생이 API 인자 순서를 추측하지 않도록 답과 설명을
-완성해 두었습니다.
+편집기에서 `____PY`를 검색하면 `PY1~PY6`의 수식 TODO 6개를 찾을 수 있습니다.
+CNN 구조와 `compile()`·`fit()` 호출은 학생이 API 이름을 추측하지 않도록 답과
+설명을 완성해 두었습니다.
 
 ### 2. PY1: 데이터 정규화
 
@@ -84,18 +84,27 @@ CNN 층은 빈칸으로 두지 않습니다. 실제 코드에는 `filters=`, `ke
 마지막 Dense에는 Softmax를 넣지 않습니다. Arduino에서 logits를 역양자화한 뒤
 Softmax를 직접 계산하기 때문입니다.
 
-### 4. PY5~PY7: compile
+### 4. PY2~PY5: 실제 학습 손실 수식
 
-`compile()`은 학습 방법을 정하지만 아직 학습을 실행하지 않습니다.
+학생이 작성한 함수는 연습용 계산이 아니라 `model.compile(loss=...)`에 연결되어
+실제 학습의 손실로 사용됩니다.
 
-- optimizer: 가중치를 어떤 방법으로 수정할지 결정
-- loss: 예측 logits와 정답 차이를 계산
-- metrics: 학습 중 사람이 확인할 평가값
-- `from_logits`: 모델 출력이 이미 확률인지 원점수인지 표시
+```text
+logits에서 행별 최댓값 빼기                     PY2
+→ exp를 적용해 Softmax 분자 만들기              PY3
+→ 행별 전체 합으로 나눠 확률 만들기             PY4
+→ 정답 클래스 확률에 -log 적용                  PY5
+→ batch 손실의 평균
+```
 
-### 5. PY8~PY9: fit
+최댓값을 먼저 빼면 `exp()` 결과가 지나치게 커지는 것을 막을 수 있습니다. 정답
+확률이 1에 가까우면 `-log(확률)`은 0에 가까워지고, 정답 확률이 0에 가까우면 손실이
+커집니다. 이 손실을 작게 만드는 방향이 곧 학습 방향입니다.
 
-`model.fit()`을 호출하는 순간 실제 학습이 시작됩니다.
+### 5. 완성 코드로 읽는 fit과 역전파
+
+`compile()`에는 Adam, 학생이 완성한 Cross Entropy 함수, 정확도 평가가 이미
+연결되어 있습니다. `model.fit()`을 호출하면 실제 학습이 시작됩니다.
 
 ```text
 순전파
@@ -105,10 +114,22 @@ Softmax를 직접 계산하기 때문입니다.
 → 다음 batch에서 반복
 ```
 
-현재 실제 코드는 TensorFlow가 역전파를 내부에서 계산합니다. 별도의 수동 MLP를
-만들지 않아도 학생이 작성한 `fit()` 호출이 실제 CNN 가중치를 바꿉니다.
+`fit()` 내부의 핵심은 개념적으로 다음 세 문장입니다.
 
-### 6. PY10: argmax
+```python
+with tf.GradientTape() as tape:
+    logits = model(images, training=True)            # 순전파
+    loss = loss_function(labels, logits)             # 학생이 작성한 손실 수식
+
+gradients = tape.gradient(loss, model.trainable_variables)  # 실제 역전파
+optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+```
+
+역전파 기울기를 계산하는 핵심 함수는 `tape.gradient()`입니다. 다만 Conv2D 전체의
+미분식을 초보자가 직접 구현하면 코드가 지나치게 커지므로 TensorFlow 자동 미분을
+사용합니다. 학생은 역전파가 최소화하려는 실제 손실 수식을 직접 작성합니다.
+
+### 6. PY6: argmax
 
 INT8 모델의 숫자별 출력 중 가장 큰 값의 위치를 선택합니다. 값 자체와 위치를
 혼동하지 않도록 `[0.1, 0.7, 0.2]`의 답이 `0.7`인지 `1`인지 먼저 생각합니다.
@@ -128,8 +149,8 @@ macOS/Ubuntu:
 ```
 
 빈칸이 남아 있으면 토큰별 힌트가 나옵니다. 모두 채우면 정규화, CNN 출력 크기,
-Adam·logits 손실, 실제 1 epoch `fit()`, argmax를 작은 입력으로 검사합니다. 전체
-5개가 통과해야 합니다.
+학생의 Softmax·Cross Entropy와 TensorFlow 정답 손실의 일치 여부, 실제 1 epoch
+`fit()`, argmax를 검사합니다. 전체 5개가 통과해야 합니다.
 
 ### 8. 짧은 실제 학습
 
@@ -266,12 +287,11 @@ README의 기본 명령과 실제 카메라 데이터에 그대로 사용됩니�
 | 빈칸 | 정답 |
 |---|---|
 | PY1 | `255.0` |
-| PY5 | `"adam"` |
-| PY6 | `True` |
-| PY7 | `"accuracy"` |
-| PY8 | `fit` |
-| PY9 | `32` |
-| PY10 | `argmax` |
+| PY2 | `logits - maximum` |
+| PY3 | `tf.exp(shifted_logits)` |
+| PY4 | `exponentials / tf.reduce_sum(exponentials, axis=1, keepdims=True)` |
+| PY5 | `-tf.math.log(answer_probabilities + 1e-7)` |
+| PY6 | `argmax` |
 
 Arduino 정답은 실제 완성 코드의 `prepareInput()`과 `sendPrediction()`에 있습니다.
 
@@ -286,7 +306,7 @@ arduino/camera_03_inference/camera_03_inference.ino
 
 1. 0~255 값을 정규화하지 않으면 학습에 어떤 변화가 생길까?
 2. 마지막 Dense의 출력 개수를 `4`로 고정하지 않고 `class_count`로 쓰는 이유는?
-3. `from_logits=False`로 잘못 지정하면 손실 계산은 무엇을 오해할까?
+3. Softmax 전에 logits의 최댓값을 빼도 최종 확률의 순위가 유지되는 이유는?
 4. `fit()` 전후 모델 가중치는 같을까?
 5. Arduino의 `Invoke()` 전후 중 어느 시점에 모델 계산이 실제로 일어날까?
 6. Softmax에서 모든 logits에 같은 `maxLogit`을 빼도 최종 순위가 유지되는 이유는?

@@ -1,7 +1,7 @@
 """카메라 숫자 사진을 CNN으로 학습하고 Arduino용 INT8 모델을 만듭니다.
 
 이 파일은 README의 기본 학습 명령이 실제로 실행하는 코드입니다. 학생은 별도의
-연습용 신경망이 아니라 이 파일의 ``____PY...____`` 7곳을 직접 완성합니다.
+연습용 신경망이 아니라 이 파일의 ``____PY...____`` 6곳을 직접 완성합니다.
 """
 
 from __future__ import annotations
@@ -161,24 +161,44 @@ def build_model(class_count: int) -> tf.keras.Model:
     )
 
 
-def compile_model(model: tf.keras.Model) -> tf.keras.Model:
-    """학습에 사용할 최적화 방법, 손실함수, 평가값을 지정합니다."""
+@tf.keras.utils.register_keras_serializable(package="TinyML")
+def sparse_cross_entropy_from_logits(
+    labels: tf.Tensor, logits: tf.Tensor
+) -> tf.Tensor:
+    """학생이 완성한 Softmax·Cross Entropy를 실제 학습 손실로 사용합니다."""
 
-    # TODO PY5~PY7: compile
-    # 문법 미니 노트
-    # - optimizer="이름"처럼 Keras가 아는 이름을 문자열로 전달할 수 있습니다.
-    # - True와 False는 따옴표를 쓰지 않는 Python 불리언입니다.
-    # - metrics는 여러 평가 기준을 담으므로 ["..."] 리스트 형태입니다.
-    # 생각 질문
-    # - 이 프로젝트가 사용하는 적응형 최적화 방법은 Adam입니다.
-    # - 마지막 Dense에 Softmax가 없으므로 출력은 확률이 아닌 logits입니다.
-    # - 학습 중 화면에서 보고 싶은 평가값은 정확도입니다.
+    labels = tf.cast(tf.reshape(labels, [-1]), tf.int32)
+
+    # TODO PY2: 지수 계산이 너무 커지지 않도록 각 행의 최댓값을 뺍니다.
+    # 힌트: logits에서 maximum을 빼는 식입니다.
+    maximum = tf.reduce_max(logits, axis=1, keepdims=True)
+    shifted_logits = ____PY2____
+
+    # TODO PY3: 모든 logit에 지수함수 exp를 적용해 Softmax 분자를 만듭니다.
+    exponentials = ____PY3____
+
+    # TODO PY4: 각 분자를 같은 행의 전체 합으로 나누어 확률로 만듭니다.
+    # 힌트: tf.reduce_sum(..., axis=1, keepdims=True)로 행별 합을 구합니다.
+    probabilities = ____PY4____
+
+    # 각 이미지에서 실제 정답 클래스의 확률만 선택합니다.
+    row_indices = tf.range(tf.shape(labels)[0], dtype=tf.int32)
+    answer_indices = tf.stack([row_indices, labels], axis=1)
+    answer_probabilities = tf.gather_nd(probabilities, answer_indices)
+
+    # TODO PY5: 정답 확률에 -log를 적용해 Cross Entropy를 계산합니다.
+    # 1e-7은 log(0)이 되는 것을 막는 아주 작은 값입니다.
+    losses = ____PY5____
+    return tf.reduce_mean(losses)
+
+
+def compile_model(model: tf.keras.Model) -> tf.keras.Model:
+    """완성된 학습 설정을 모델에 연결합니다."""
+
     model.compile(
-        optimizer=____PY5____,
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(
-            from_logits=____PY6____
-        ),
-        metrics=[____PY7____],
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=sparse_cross_entropy_from_logits,
+        metrics=["accuracy"],
     )
     return model
 
@@ -193,18 +213,16 @@ def train_model(
 ) -> tf.keras.callbacks.History:
     """TensorFlow가 순전파·손실·역전파·가중치 수정을 반복하게 합니다."""
 
-    # TODO PY8~PY9: 실제 학습 시작
-    # 문법 미니 노트
-    # - 객체.메서드(...)는 객체가 가진 기능을 실행합니다.
-    # - model의 학습 메서드는 f로 시작합니다.
-    # - batch_size는 한 번의 가중치 수정에 함께 보는 이미지 수인 정수입니다.
-    # 생각 질문: 현재 완성 코드에서는 32장씩 묶어 학습합니다.
-    history = model.____PY8____(
+    # model.fit()은 각 batch마다 TensorFlow 내부에서 개념적으로 다음을 수행합니다.
+    # 1. GradientTape 안에서 model 입력 → logits → 위 Cross Entropy 손실을 계산합니다.
+    # 2. tape.gradient(loss, model.trainable_variables)로 역전파 기울기를 구합니다.
+    # 3. Adam.apply_gradients(...)로 필터와 Dense 가중치를 수정합니다.
+    history = model.fit(
         x_train,
         y_train,
         validation_data=(x_val, y_val),
         epochs=epochs,
-        batch_size=____PY9____,
+        batch_size=32,
         callbacks=[
             tf.keras.callbacks.EarlyStopping(
                 monitor="val_loss", patience=12, restore_best_weights=True
@@ -218,12 +236,12 @@ def train_model(
 def select_best_index(scores: np.ndarray) -> int:
     """가장 점수가 큰 클래스의 위치를 고릅니다."""
 
-    # TODO PY10: argmax 추론
+    # TODO PY6: argmax 추론
     # 문법 미니 노트
     # - np.함수이름(배열)은 NumPy 도구 상자의 함수를 호출한다는 뜻입니다.
     # - 가장 큰 값 자체가 아니라 '가장 큰 값의 위치'를 반환하는 함수를 찾습니다.
     # 생각 질문: [0.1, 0.7, 0.2]에서 필요한 답은 값 0.7일까요, 위치 1일까요?
-    return int(np.____PY10____(scores))
+    return int(np.____PY6____(scores))
 
 
 def convert_int8(model: tf.keras.Model, representative: np.ndarray) -> bytes:
@@ -332,7 +350,7 @@ def main() -> None:
     )
     x_aug, y_aug = augment(x_train, y_train, args.seed)
 
-    # 학생이 위에서 완성한 CNN·compile·fit 함수가 실제 모델 학습에 사용됩니다.
+    # 학생이 완성한 정규화와 Cross Entropy 수식이 실제 모델 학습에 사용됩니다.
     model = compile_model(build_model(len(digits)))
     history = train_model(
         model, x_aug, y_aug, x_val, y_val, args.epochs

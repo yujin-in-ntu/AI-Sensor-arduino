@@ -1,7 +1,7 @@
 # 실제 AI 코드에 필요한 Python·NumPy 문법
 
 이 문서는 별도의 장난감 문법 문제를 풀기 위한 문서가 아닙니다. 바로 다음 단계의
-`python/train_camera_model.py`에서 실제 카메라 CNN을 완성할 때 필요한 문법만
+`python/train_camera_model.py`에서 실제 카메라 학습 수식을 완성할 때 필요한 문법만
 먼저 익힙니다.
 
 문법을 모두 외운 뒤 시작할 필요는 없습니다. 아래 예제를 한 번 읽고, 학생용
@@ -37,11 +37,16 @@ model.fit(...)
 ## 위치인자와 키워드 인자
 
 ```python
-tf.keras.layers.Conv2D(8, 3, activation="relu")
+tf.keras.layers.Conv2D(
+    filters=8,
+    kernel_size=(3, 3),
+    activation="relu",
+)
 ```
 
-- `8`, `3`: 순서로 의미를 구분하는 위치인자
-- `activation="relu"`: 이름을 직접 지정하는 키워드 인자
+- `filters=8`: 필터 개수를 이름과 함께 전달하는 키워드 인자
+- `kernel_size=(3, 3)`: 필터의 높이와 너비를 이름과 함께 전달
+- `activation="relu"`: 활성화 함수 이름을 직접 지정
 - `=`: 오른쪽 값을 왼쪽 이름에 전달하거나 저장
 
 비교할 때는 `==`, 더 큰지 확인할 때는 `>`를 사용합니다. 저장하는 `=`와
@@ -82,6 +87,28 @@ normalized = pixels / 255.0
 
 NumPy 배열을 실수 하나로 나누면 반복문을 직접 쓰지 않아도 모든 픽셀에 같은
 나눗셈이 적용됩니다. 0~255 픽셀이 0~1 범위로 바뀝니다.
+
+## TensorFlow 배열 전체에 학습 수식 적용하기
+
+```python
+maximum = tf.reduce_max(logits, axis=1, keepdims=True)
+exponentials = tf.exp(logits - maximum)
+total = tf.reduce_sum(exponentials, axis=1, keepdims=True)
+probabilities = exponentials / total
+losses = -tf.math.log(answer_probabilities + 1e-7)
+```
+
+- `tf.reduce_max`: 지정한 방향에서 가장 큰 값을 선택
+- `tf.exp`: 배열의 모든 값에 지수함수를 적용
+- `tf.reduce_sum`: 지정한 방향의 값들을 더함
+- `axis=1`: 각 이미지가 가진 클래스 점수 방향으로 계산
+- `keepdims=True`: 나중에 원래 배열과 뺄셈·나눗셈할 수 있도록 차원을 유지
+- `tf.math.log`: 자연로그 계산
+- 앞의 `-`: 정답 확률이 작을수록 손실이 커지도록 부호를 바꿈
+
+이 연산들은 실제 `model.compile(loss=...)`에 전달되는 손실함수 안에서 실행됩니다.
+TensorFlow는 이 계산 과정을 기록한 뒤 `tape.gradient()`로 각 가중치의 기울기를
+자동 계산합니다.
 
 ## 함수 만들기와 결과 돌려주기
 
