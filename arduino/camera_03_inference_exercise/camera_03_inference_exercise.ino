@@ -309,6 +309,9 @@ bool runInference(bool guiMode) {
     // logits[i]에는 모델의 INT8 출력을 다시 실수 점수로 바꾼 값이 들어가야 합니다.
     // outputTensor->data.int8[i]는 현재 INT8 출력값입니다.
     // 출력의 zero_point와 scale을 함께 이용해 역양자화 수식을 작성하세요.
+    // outputTensor->data.int8[i]: 숫자 클래스 i에 대해 모델이 출력한 양자화된 INT8 점수입니다.
+    // outputTensor->params.zero_point: 실제 값 0을 INT8 좌표에서 나타내는 기준 위치입니다.
+    // outputTensor->params.scale: INT8 값이 한 칸 변할 때 실제 점수가 변하는 간격입니다.
     logits[i] = ____ARD3____;
     if (logits[i] > maxLogit) maxLogit = logits[i];
   }
