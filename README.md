@@ -527,10 +527,11 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 수집 GUI를 닫습니다. Arduino에 02 스케치가 올라가 있어도 PC 학습에는 문제가
 없습니다.
 
-Python 학습 파일은 수정하지 않습니다. 먼저
-[카메라 CNN 학습 코드 읽기](docs/AI_CODE_LAB.md)에서 사진이 정규화, Conv2D,
-MaxPooling, Dense, Cross Entropy, Backpropagation을 거치는 위치를 실제 코드와
-함께 확인한 뒤 아래의 완성된 `train_camera_model.py`를 실행합니다.
+일반 학습에서는 완성된 `train_camera_model.py`를 수정하지 않고 실행합니다. 학생이
+CNN 구조를 직접 작성하는 활동은 별도의 `train_camera_model_exercise.py`에서
+진행합니다. 먼저 [카메라 CNN 학습 코드 실습](docs/AI_CODE_LAB.md)에서 사진이
+정규화, Conv2D, MaxPooling, Dense, Cross Entropy, Backpropagation을 거치는 위치를
+확인합니다.
 
 Windows:
 
@@ -868,17 +869,18 @@ python/
 ├─ camera_preprocess.py       종이·숫자 탐지와 28×28 전처리
 ├─ preview_camera.py          160×120 원본 미리보기 GUI
 ├─ collect_camera_data.py     Full View 데이터 수집 GUI
-├─ train_camera_model.py      직접 촬영 데이터 CNN 학습
+├─ train_camera_model.py      바로 실행하는 완성된 카메라 CNN 학습
+├─ train_camera_model_exercise.py  학생이 CNN 구조를 작성하는 실제 학습 실습
 ├─ train_mnist_model.py       MNIST 다운로드·학습
 ├─ run_inference_gui.py       Arduino 추론 결과 GUI
 ├─ rebuild_camera_digits.py   저장된 원본의 28×28 재생성 도구
 └─ check_exercises.py         Arduino 실제 추론 빈칸 검사
 ```
 
-학생은 별도의 `learning` 복사본이 아니라 README의 기본 명령이 실행하는
-`python/train_camera_model.py`의 완성된 정규화·CNN·손실·`fit()` 흐름을 함께
-읽습니다. Python은 수정하지 않고 그대로 실행합니다. 직접 작성하는 활동은
-Arduino 학생용 스케치의 양자화·Softmax·최댓값 선택 수식에서 진행합니다.
+기본 실습과 모델 생성에는 완성된 `python/train_camera_model.py`를 사용합니다.
+CNN 층을 직접 작성할 때는 같은 실제 학습 흐름을 가진
+`python/train_camera_model_exercise.py`의 PY1~PY8을 완성합니다. Arduino에서는
+학생용 스케치의 양자화·Softmax·최댓값 선택 수식을 직접 작성합니다.
 
 ## 전체 흐름 한눈에 보기
 
@@ -899,7 +901,8 @@ MNIST 모델 학습 → 03 다시 업로드 → 결과 비교
 실제 촬영 데이터의 가중치 학습은 `python/train_camera_model.py`의
 `model.fit()`에서 수행됩니다. `camera_03_inference.ino`는 학습된 모델로 보드에서
 추론하고, `run_inference_gui.py`는 보드에 명령을 보내 결과를 화면에 표시합니다.
-Python 학습 코드는 완성된 상태이므로 별도의 빈칸을 채우지 않고 실행할 수 있습니다.
+`train_camera_model.py`는 빈칸 없이 바로 실행할 수 있고,
+`train_camera_model_exercise.py`는 Python CNN 작성 수업용입니다.
 
 ## 가장 중요한 사용 규칙
 

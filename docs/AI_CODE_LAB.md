@@ -1,9 +1,9 @@
-# 카메라 CNN 학습 코드 읽기·Arduino 추론 코드 실습
+# 카메라 CNN 학습 코드 읽기·작성 및 Arduino 추론 실습
 
-Python 학습 코드는 학생이 수정하지 않습니다. 먼저 사진 한 장이 학습되는 흐름을
-그림처럼 이해하고, 그 과정이 `python/train_camera_model.py`의 어느 코드에
-해당하는지 함께 찾습니다. 직접 빈칸을 채우는 활동은 Arduino의 실제 추론 수식에서
-진행합니다.
+`python/train_camera_model.py`는 언제든 실행할 수 있는 완성본입니다. 먼저 사진 한
+장이 학습되는 흐름과 완성 코드를 함께 읽은 다음, 학생은
+`python/train_camera_model_exercise.py`의 실제 CNN 구조를 작성합니다. Arduino에서는
+별도의 학생용 스케치에서 실제 추론 수식을 작성합니다.
 
 ```text
 28×28 숫자 사진과 정답
@@ -21,13 +21,25 @@ Python 학습 코드는 학생이 수정하지 않습니다. 먼저 사진 한 �
 
 | 파일 | 수업에서 하는 일 |
 |---|---|
-| `python/train_camera_model.py` | 수정하지 않고 실제 학습 흐름을 코드에서 찾기 |
+| `python/train_camera_model.py` | 바로 실행하는 Python 학습 완성본 |
+| `python/train_camera_model_exercise.py` | PY1~PY8을 작성하는 실제 CNN 학습 실습 |
 | `arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino` | 실제 추론 수식 8곳 직접 작성 |
 | `python/check_exercises.py` | Arduino 빈칸 검사 |
 | `arduino/camera_03_inference/camera_03_inference.ino` | Arduino 교사용 완성본 |
 
 Python의 점, 괄호, 리스트, `name=value`가 낯설다면 먼저
 [Python·NumPy 문법](PYTHON_NUMPY_START.md)을 읽습니다.
+
+완성본으로 먼저 전체 학습이 되는지 확인한 뒤 `_exercise.py`를 엽니다. PY1~PY5는
+숫자를 채우고, PY6과 PY7은 주어진 조건만 보고 층 함수 전체를 작성하며, PY8은
+특징 지도를 Dense 층이 받을 수 있는 한 줄 배열로 펼치는 층을 작성합니다.
+
+연습본의 PY6~PY8은 완성본을 그대로 베끼는 문제가 아닙니다. 주어진 `5×5` 필터와
+`2×2` 이동 조건을 적용하면 크기가 다음처럼 변합니다.
+
+```text
+13×13×8 → Conv2D → 5×5×16 → MaxPooling → 2×2×16 → Flatten → 64
+```
 
 ## 1부: 사진 학습 과정과 Python 코드 함께 보기
 
@@ -172,6 +184,8 @@ optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
 ### 7. 공개 예제로 짧게 실행
 
+먼저 아래 명령으로 완성본이 정상적으로 학습되는지 확인합니다.
+
 Windows:
 
 ```powershell
@@ -182,6 +196,21 @@ macOS/Ubuntu:
 
 ```bash
 ./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
+```
+
+그다음 `train_camera_model_exercise.py`의 PY1~PY8을 완성했다면 파일 이름만 바꿔
+같은 데이터로 실습 코드를 실행합니다.
+
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe python\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\exercise_camera
+```
+
+macOS/Ubuntu:
+
+```bash
+./.venv/bin/python python/train_camera_model_exercise.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/exercise_camera
 ```
 
 ## 2부: Arduino에서 실제 추론 수식 완성
