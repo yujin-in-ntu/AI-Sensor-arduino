@@ -13,8 +13,6 @@ brew update
 brew install arduino-cli
 ```
 
-Linux에서는 공식 설치 스크립트 또는 배포 파일을 사용할 수 있습니다.
-
 Windows에서는 공식 Windows MSI/실행 파일을 설치하고 `arduino-cli.exe`가 PATH에 포함되게 합니다.
 
 확인:
@@ -53,7 +51,6 @@ arduino:mbed_nano:nano33ble
 
 - Windows: `COM5`
 - macOS: `/dev/cu.usbmodem1101`
-- Ubuntu: `/dev/ttyACM0`
 
 ## 4. 01 카메라 확인 스케치
 
@@ -78,10 +75,10 @@ Windows:
 .\.venv\Scripts\python.exe python\preview_camera.py --port COM5
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/preview_camera.py --port <PORT>
+python python/preview_camera.py --port <PORT>
 ```
 
 `OV7675 원본 160x120 미리보기` 창에서 실제 영상을 확인합니다.
@@ -120,10 +117,10 @@ Windows:
 .\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/run_inference_gui.py --port <PORT>
+python python/run_inference_gui.py --port <PORT>
 ```
 
 ## 8. 업로드 포트가 갑자기 바뀔 때

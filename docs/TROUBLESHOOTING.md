@@ -20,8 +20,8 @@
 Windows 프로젝트:          C:\Users\<사용자이름>\Projects\AI-Sensor-arduino
 Windows Arduino 라이브러리: C:\Users\<사용자이름>\Documents\Arduino\libraries
 
-macOS/Ubuntu 프로젝트:          ~/Projects/AI-Sensor-arduino
-macOS/Ubuntu Arduino 라이브러리: ~/Documents/Arduino/libraries
+macOS 프로젝트:          ~/Projects/AI-Sensor-arduino
+macOS Arduino 라이브러리: ~/Documents/Arduino/libraries
 ```
 
 Python 학습·전처리·GUI 명령은 프로젝트 폴더에서 실행합니다. Arduino 라이브러리
@@ -36,7 +36,7 @@ Test-Path -LiteralPath .\requirements.txt
 Test-Path -LiteralPath .\.venv\Scripts\python.exe
 ```
 
-macOS/Ubuntu 확인:
+macOS 확인:
 
 ```bash
 cd ~/Projects/AI-Sensor-arduino
@@ -79,7 +79,7 @@ Get-Location
 Get-ChildItem
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 pwd
@@ -105,8 +105,6 @@ could not open port
 3. 다른 Python 카메라 창을 닫습니다.
 4. 잠시 기다렸다 다시 실행합니다.
 5. 계속 실패하면 USB를 다시 연결하고 포트를 재확인합니다.
-
-Ubuntu라면 `dialout` 그룹과 udev 규칙도 확인합니다.
 
 ## Arduino가 `HELLO`에 응답하지 않음
 

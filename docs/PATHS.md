@@ -24,10 +24,9 @@ GitHub 프로젝트와 Python 가상환경을 같은 폴더로 생각하는 것�
 |---|---|---|---|
 | Windows | `C:\Users\<사용자이름>\Downloads` | `C:\Program Files` 또는 사용자 `AppData\Local\Programs` | `C:\Users\<사용자이름>\Projects\AI-Sensor-arduino` |
 | macOS | `~/Downloads` | `/Applications` 및 Python `/Library/Frameworks` | `~/Projects/AI-Sensor-arduino` |
-| Ubuntu | `~/Downloads` | `/usr/bin` 또는 Arduino IDE `~/Applications` | `~/Projects/AI-Sensor-arduino` |
 
 설치가 끝난 `.exe`, `.pkg`, `.dmg`는 프로젝트의 일부가 아닙니다. Arduino IDE의
-AppImage만 Ubuntu의 권장 경로인 `~/Applications/arduino-ide.AppImage`에 보관합니다.
+설치 파일과 GitHub 프로젝트를 같은 폴더에 섞지 마세요.
 
 다음 세 가지를 하지 마세요.
 
@@ -154,38 +153,6 @@ Arduino IDE의 `Arduino IDE > Settings > Sketchbook location`을
 mkdir -p ~/Documents/Arduino/libraries
 ```
 
-## Ubuntu 권장 경로
-
-이 저장소의 고정 TensorFlow 버전과 가장 간단하게 맞추려면 Ubuntu 22.04의 기본
-Python 3.10을 권장합니다.
-
-| 항목 | 권장 경로 |
-|---|---|
-| Git | `/usr/bin/git` |
-| Python | `/usr/bin/python3` |
-| Arduino IDE AppImage | `~/Applications/arduino-ide.AppImage` |
-| GitHub 프로젝트 | `~/Projects/AI-Sensor-arduino` |
-| Python 가상환경 | `~/Projects/AI-Sensor-arduino/.venv` |
-| Arduino Sketchbook | `~/Documents/Arduino` |
-| Arduino 라이브러리 | `~/Documents/Arduino/libraries` |
-| Boards Manager 패키지 | `~/.arduino15/packages` |
-
-```bash
-mkdir -p ~/Projects
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git ~/Projects/AI-Sensor-arduino
-cd ~/Projects/AI-Sensor-arduino
-pwd
-test -f README.md && test -f requirements.txt && echo "프로젝트 경로 정상"
-```
-
-Arduino IDE의 `File > Preferences > Sketchbook location`을
-`~/Documents/Arduino`로 설정합니다. 라이브러리도 반드시 그 아래의
-`~/Documents/Arduino/libraries`에 설치합니다.
-
-```bash
-mkdir -p ~/Documents/Arduino/libraries
-```
-
 ## 명령을 실행하기 전 매번 확인할 것
 
 Python 명령을 실행하기 전 터미널의 현재 위치가 프로젝트 최상위인지 확인합니다.
@@ -197,7 +164,7 @@ Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 Test-Path -LiteralPath .\requirements.txt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 cd ~/Projects/AI-Sensor-arduino

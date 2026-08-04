@@ -26,25 +26,29 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 
 충전 전용 USB 케이블은 전원만 공급하고 포트가 나타나지 않을 수 있습니다.
 
-## 운영체제별 설치 안내
+## 이 README만 따라 진행합니다
 
-자신의 운영체제 문서를 먼저 끝까지 진행하세요.
+Windows와 macOS 모두 아래의 **0단계부터 10단계까지 이 README만 위에서 아래로**
+따라 하면 됩니다. 다음 문서는 추가 설명이 필요할 때만 보는 선택 자료입니다.
 
 - [Windows 설치](docs/WINDOWS.md)
 - [macOS 설치](docs/MACOS.md)
-- [Ubuntu 설치](docs/UBUNTU.md)
 - [프로그램·프로젝트·Arduino 라이브러리 정확한 경로](docs/PATHS.md)
 - [Arduino CLI로 컴파일·업로드](docs/ARDUINO_CLI.md) — 선택 사항
-
-이 README 아래에 설치부터 촬영·학습·업로드·추론까지 전체 순서가 모두 있습니다.
-처음 실습하는 학생은 다른 문서로 이동하지 말고 다음 절부터 계속 아래로 읽습니다.
-아래 문서들은 특정 운영체제나 주제를 더 자세히 확인할 때만 참고합니다.
 
 - [기본: 직접 촬영하는 01 → 02 → 03 전체 실습](docs/EXPERIMENT.md)
 - [대체: 촬영이 어려울 때 공개 예제 데이터로 학습](docs/EXAMPLE_DATA.md)
 - [실제 CNN 코드에 필요한 Python·NumPy 문법](docs/PYTHON_NUMPY_START.md)
 - [카메라 CNN 학습 코드 읽기·Arduino 추론 실습](docs/AI_CODE_LAB.md)
 - [오류 해결 모음](docs/TROUBLESHOOTING.md)
+
+## 중요: TensorFlow 2.15.1 사용
+
+Windows와 macOS 모두 이 프로젝트의 모델 학습에는 **TensorFlow 2.15.1**을
+사용합니다. `requirements.txt`에도 `tensorflow==2.15.1`로 고정되어 있습니다.
+TensorFlow 2.21.0 등 다른 버전으로 모델을 만들면 Arduino에서 `SHAPE` 연산 오류가
+날 수 있습니다. 학습하기 전에 반드시 2단계의 버전 확인 결과가 `2.15.1`인지
+확인하세요.
 
 ## 처음부터 끝까지 README 하나로 따라 하기
 
@@ -56,7 +60,7 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 앞 명령이 끝난 뒤 다음 명령을 실행하세요. 명령 앞의 `PS C:\...>` 같은 터미널
 표시는 입력하지 않습니다.
 
-### 0단계: Git, Python 3.11, Arduino IDE 2 설치
+### 0단계: Git, Python 3.11.9, Arduino IDE 2 설치
 
 이미 세 프로그램이 모두 설치되어 있다면 버전만 확인하고 1단계로 이동합니다.
 수업용 PC를 처음 준비한다면 아래 순서대로 설치하세요.
@@ -66,7 +70,7 @@ Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를
 GitHub 프로젝트와 Arduino 라이브러리를 같은 폴더에 넣지 않습니다. 이 문서의
 권장 경로는 다음과 같습니다.
 
-| 용도 | Windows | macOS/Ubuntu |
+| 용도 | Windows | macOS |
 |---|---|---|
 | GitHub 프로젝트 | `C:\Users\<사용자이름>\Projects\AI-Sensor-arduino` | `~/Projects/AI-Sensor-arduino` |
 | 프로젝트 가상환경 | `...\AI-Sensor-arduino\.venv` | `.../AI-Sensor-arduino/.venv` |
@@ -74,8 +78,8 @@ GitHub 프로젝트와 Arduino 라이브러리를 같은 폴더에 넣지 않습
 | Arduino 라이브러리 | `...\Documents\Arduino\libraries` | `~/Documents/Arduino/libraries` |
 
 Arduino IDE와 Python 본체는 운영체제의 프로그램 영역에 설치하고, 촬영 데이터와
-모델은 GitHub 프로젝트 안에 둡니다. 전체 경로표와 확인 명령은
-[설치 경로와 작업 폴더 기준](docs/PATHS.md)을 먼저 확인하세요.
+모델은 GitHub 프로젝트 안에 둡니다. 경로 문제가 생겼을 때만 선택 자료인
+[설치 경로와 작업 폴더 기준](docs/PATHS.md)을 참고합니다.
 
 #### 0-1. Git 확인 및 설치
 
@@ -89,13 +93,20 @@ git --version
 나오면 [Git for Windows](https://git-scm.com/download/win)를 설치한 뒤 열려 있던
 PowerShell을 모두 닫고 새 PowerShell을 엽니다.
 
-macOS와 Ubuntu의 Git 설치 방법은 각각 [macOS 설치 안내](docs/MACOS.md),
-[Ubuntu 설치 안내](docs/UBUNTU.md)를 참고합니다.
+macOS Terminal에서는 다음 명령으로 확인합니다.
+
+```bash
+git --version
+```
+
+처음 실행할 때 Command Line Tools 설치 창이 나오면 설치합니다. 아무 창도 나오지
+않고 `git`을 찾지 못하면 `xcode-select --install`을 실행하고 설치가 끝난 뒤 새
+Terminal을 엽니다.
 
 #### 0-2. Python 3.11 확인 및 설치
 
-이 프로젝트는 `TensorFlow 2.15.1`을 사용하므로 **Python 3.11 64비트**를
-권장합니다. 최신 버전이라는 이유로 Python 3.12 이상을 설치하지 마세요.
+이 프로젝트는 `TensorFlow 2.15.1`을 사용하므로 **Python 3.11.9 64비트**를
+사용합니다. 최신 버전이라는 이유로 Python 3.12 이상을 설치하지 마세요.
 
 Windows PowerShell에서 먼저 확인합니다.
 
@@ -124,22 +135,70 @@ PATH 관련 항목을 활성화합니다. `py -3.11 --version`만 정상 동작�
 2단계의 첫 명령을 `py -3.11 -m venv .venv`로 실행해도 됩니다. 가상환경을 만든
 뒤에는 문서에 적힌 `\.venv\Scripts\python.exe` 명령을 그대로 사용합니다.
 
-macOS에서는 `python3 --version`을 사용합니다. Ubuntu를 포함한 자세한 설치법은
-[macOS 설치 안내](docs/MACOS.md)와 [Ubuntu 설치 안내](docs/UBUNTU.md)를 따릅니다.
+macOS 설치 순서:
+
+1. [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)를 엽니다.
+2. 페이지 아래 `Files`에서 `macOS 64-bit universal2 installer`를 받습니다.
+3. 설치 프로그램을 완료하고 새 Terminal을 엽니다.
+4. 다음 명령 결과가 `Python 3.11.9`인지 확인합니다.
+
+```bash
+python3.11 --version
+```
+
+`python3 --version`이 3.12 이상이어도 괜찮지만 이 프로젝트의 가상환경은 반드시
+아래 2단계에서 `python3.11` 명령으로 만듭니다.
+
+#### 관리자 권한 없이 Python 3.11.9를 준비해야 할 때
+
+학교·기관 컴퓨터에서 Python 설치 프로그램이 관리자 암호를 요구한다면 `uv`를
+사용해 현재 사용자 폴더에 Python 3.11.9를 설치할 수 있습니다. 관리자 권한이 있는
+컴퓨터에서는 위의 일반 설치 방법을 사용하면 되며, `uv`를 추가로 설치할 필요가
+없습니다.
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+macOS Terminal:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+설치 후 PowerShell 또는 Terminal을 완전히 닫았다가 다시 열고 확인합니다.
+
+```text
+uv --version
+```
+
+그다음 Python 3.11.9를 현재 사용자 영역에 설치합니다.
+
+```text
+uv python install 3.11.9
+```
+
+`uv`는 Python이 없어도 실행할 수 있으며, 요청한 Python을 사용자 영역에 내려받아
+관리합니다. 기관의 보안 정책이 외부 다운로드나 설치 스크립트 자체를 차단한다면
+이 방법도 사용할 수 없으므로 담당 관리자에게 설치를 요청해야 합니다. 자세한
+동작은 [uv 공식 Python 설치 안내](https://docs.astral.sh/uv/guides/install-python/)를
+참고하세요.
 
 #### 0-3. Arduino IDE 2 설치
 
-1. [Arduino IDE 2 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 운영체제에 맞는 Arduino IDE 2를 설치합니다.
+1. [Arduino IDE 2 공식 설치 안내](https://support.arduino.cc/hc/en-us/articles/360019833020-Download-and-install-Arduino-IDE)에서 Windows 또는 macOS용 설치 파일을 받습니다.
 2. Arduino IDE 2를 실행합니다.
-3. 설정에서 Sketchbook 위치를 Windows는 `C:\Users\<사용자이름>\Documents\Arduino`, macOS/Ubuntu는 `~/Documents/Arduino`로 지정합니다.
+3. 설정에서 Sketchbook 위치를 Windows는 `C:\Users\<사용자이름>\Documents\Arduino`, macOS는 `~/Documents/Arduino`로 지정합니다.
 
 보드 패키지와 외부 라이브러리는 하드웨어를 조립한 뒤 3~4단계에서 설치합니다.
 
-운영체제별 전체 설치 과정:
+아래 운영체제별 문서는 추가 설명이 필요할 때만 보고, 기본 실습은 계속 이
+README의 1단계로 진행합니다.
 
 - [Windows: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/WINDOWS.md)
 - [macOS: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/MACOS.md)
-- [Ubuntu: Arduino IDE, 보드 패키지, 카메라·TensorFlow Lite 라이브러리 설치](docs/UBUNTU.md)
 
 여기까지 끝나면 GitHub 저장소를 받는 1단계로 이동합니다.
 
@@ -155,7 +214,7 @@ git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git "$env:USERPROFIL
 Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 mkdir -p ~/Projects
@@ -174,7 +233,7 @@ Windows:
 Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 cd ~/Projects/AI-Sensor-arduino
@@ -190,19 +249,19 @@ Test-Path -LiteralPath .\arduino
 Test-Path -LiteralPath .\python
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 pwd
 test -f README.md && test -f requirements.txt && test -d arduino && test -d python && echo "프로젝트 경로 정상"
 ```
 
-Windows에서는 프로젝트 경로와 네 개의 `True`, macOS/Ubuntu에서는
+Windows에서는 프로젝트 경로와 네 개의 `True`, macOS에서는
 `프로젝트 경로 정상`이 나오면 올바른 위치입니다.
 
 ### 2단계: Python 가상환경과 라이브러리 설치
 
-Python 3.10 또는 3.11을 권장합니다. 먼저 버전을 확인합니다.
+Python 3.11.x를 사용합니다. 먼저 버전을 확인합니다.
 
 Windows:
 
@@ -210,7 +269,7 @@ Windows:
 python --version
 ```
 
-가상환경을 만들고 필요한 라이브러리를 설치합니다.
+일반 Python 설치가 되어 있다면 가상환경을 만들고 필요한 라이브러리를 설치합니다.
 
 ```powershell
 python -m venv .venv
@@ -218,17 +277,42 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+관리자 권한 없이 `uv`로 Python을 준비했다면 첫 줄 대신 다음 명령으로 가상환경을
+만든 후, 위의 두 `\.venv\Scripts\python.exe` 설치 명령을 실행합니다.
+
+```powershell
+uv venv --python 3.11.9 --seed .venv
+```
+
 Windows에서는 PowerShell 실행 정책 문제를 피하기 위해 `Activate.ps1`을 실행하지
 않습니다. 이후에도 항상 `.\.venv\Scripts\python.exe`로 가상환경 Python을 직접
 실행합니다.
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-python3 --version
-python3 -m venv .venv
-./.venv/bin/python -m pip install --upgrade pip
-./.venv/bin/python -m pip install -r requirements.txt
+python3.11 --version
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+관리자 권한 없이 `uv`로 Python을 준비했다면 위의 첫 두 줄 대신 다음 두 줄로
+가상환경을 만든 뒤, `python -m pip install`로 시작하는 나머지 두 줄을 실행합니다.
+
+```bash
+uv venv --python 3.11.9 --seed .venv
+source .venv/bin/activate
+```
+
+`source .venv/bin/activate`를 실행하면 터미널 앞에 `(.venv)` 같은 표시가 생깁니다.
+이 README의 이후 macOS 명령은 가상환경이 활성화되었다고 가정하고 모두 `python`으로
+시작합니다. 새 터미널을 열었다면 다음 두 줄을 다시 실행합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+source .venv/bin/activate
 ```
 
 마지막 `requirements.txt` 설치 명령은 이 프로젝트에 필요한 다음 세 패키지를
@@ -252,101 +336,56 @@ Windows:
 ```powershell
 .\.venv\Scripts\python.exe -c "import numpy; print('NumPy ready:', numpy.__version__)"
 .\.venv\Scripts\python.exe -c "import serial; print('PySerial ready:', serial.__version__)"
-.\.venv\Scripts\python.exe -c "import numpy, serial, tensorflow; print('Python ready')"
+.\.venv\Scripts\python.exe -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python -c "import numpy; print('NumPy ready:', numpy.__version__)"
-./.venv/bin/python -c "import serial; print('PySerial ready:', serial.__version__)"
-./.venv/bin/python -c "import numpy, serial, tensorflow; print('Python ready')"
-```
-
-`Python ready`가 나오면 다음 단계로 이동합니다. TensorFlow 정보나 경고가 함께
-출력되어도 마지막에 `Python ready`가 있으면 설치가 완료된 것입니다.
-
-#### macOS: `(python-test)`는 보이는데 `./.venv/bin/python`이 없다고 할 때
-
-`./.venv/bin/python`에서 맨 앞의 `./`는 **현재 터미널 폴더**를 뜻합니다. 따라서
-이 명령은 현재 위치가 `~/Projects/AI-Sensor-arduino`이고, 그 안에 `.venv`가 있을
-때만 동작합니다. `~/Documents/Arduino/libraries`, `~/Projects`, 사용자 홈 폴더에서
-같은 명령을 실행하면 다음 오류가 날 수 있습니다.
-
-```text
-zsh: no such file or directory: ./.venv/bin/python
-```
-
-먼저 GitHub 프로젝트 루트로 돌아와 파일과 가상환경을 확인합니다.
-
-```bash
-cd ~/Projects/AI-Sensor-arduino
-pwd
-test -f python/preview_camera.py && echo "프로젝트 위치 정상"
-test -x .venv/bin/python && echo "프로젝트 가상환경 존재" || echo "프로젝트 가상환경 없음"
-```
-
-`프로젝트 위치 정상`과 `프로젝트 가상환경 존재`가 모두 나오면 다음처럼 실행합니다.
-
-```bash
-./.venv/bin/python -c "import numpy, serial, tensorflow; print('Python ready')"
-./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem12401
-```
-
-`/dev/cu.usbmodem12401`은 예시이므로 `ls /dev/cu.usbmodem*`에 표시된 자신의 포트로
-바꿉니다.
-
-터미널 명령줄 앞에 `(python-test)`처럼 괄호로 된 이름이 보인다면 다른 위치의
-가상환경이 이미 활성화된 상태일 수 있습니다. 다음 명령으로 실제 위치를 확인합니다.
-
-```bash
-echo "$VIRTUAL_ENV"
-which python
-python --version
-test -x "$VIRTUAL_ENV/bin/python" && echo "활성 가상환경 존재" || echo "활성 가상환경 없음"
-```
-
-`활성 가상환경 존재`가 나오면 `./.venv/bin/python` 대신 그냥 `python`을 사용할 수
-있습니다. 단, 명령은 프로젝트 루트로 이동한 뒤 실행해야 합니다.
-
-```bash
-cd ~/Projects/AI-Sensor-arduino
-python -c "import numpy, serial, tensorflow; print('Python ready')"
-python python/preview_camera.py --port /dev/cu.usbmodem12401
-```
-
-이때 `No module named 'numpy'`, `No module named 'serial'` 등이 나오면 현재 활성
-가상환경에 프로젝트 라이브러리가 아직 설치되지 않은 것입니다. `uv`로 만든
-가상환경이라면 다음 명령으로 필요한 라이브러리를 한꺼번에 설치합니다.
-
-```bash
-cd ~/Projects/AI-Sensor-arduino
-uv pip install -r requirements.txt
 python -c "import numpy; print('NumPy ready:', numpy.__version__)"
-python -c "import numpy, serial, tensorflow; print('Python ready')"
+python -c "import serial; print('PySerial ready:', serial.__version__)"
+python -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
 ```
 
-`uv pip install`은 먼저 `VIRTUAL_ENV`에 지정된 활성 가상환경을 찾습니다. 활성
-가상환경을 자동으로 찾지 못하거나 설치 대상을 확실하게 지정하고 싶다면 다음처럼
-Python 실행 파일을 직접 지정합니다.
+결과가 각각 `NumPy ready: 1.26.4`, `PySerial ready: 3.5`,
+`TensorFlow ready: 2.15.1`이면 다음 단계로 이동합니다. 하나라도 없거나 다른 버전이면
+모델을 학습하지 말고 운영체제에 맞는 명령으로 세 패키지를 한꺼번에 다시 맞춥니다.
 
-```bash
-uv pip install --python "$VIRTUAL_ENV/bin/python" -r requirements.txt
+Windows:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --upgrade --force-reinstall -r requirements.txt
 ```
 
-일반 `venv`이고 `pip`가 설치되어 있다면 다음 명령을 사용합니다.
+macOS:
 
 ```bash
+python -m pip install --upgrade --force-reinstall -r requirements.txt
+```
+
+설치 후 위의 TensorFlow 확인 명령을 다시 실행합니다. 이미 다른 TensorFlow 버전으로
+학습했다면 패키지만 바꿔서는 기존 모델이 바뀌지 않습니다. 2.15.1 확인 후
+`train_camera_model.py`를 다시 실행하고, 새로 생성된 모델을 포함하도록 03 스케치를
+다시 업로드해야 합니다.
+
+#### macOS: 다른 가상환경 이름이 보이거나 패키지를 찾지 못할 때
+
+터미널 앞에 `(python-test)`처럼 다른 이름이 보인다면 현재 프로젝트가 아닌 다른
+가상환경일 수 있습니다. 프로젝트 가상환경으로 다시 들어갑니다.
+
+```bash
+deactivate
 cd ~/Projects/AI-Sensor-arduino
+source .venv/bin/activate
+which python
 python -m pip install -r requirements.txt
-python -c "import numpy, serial, tensorflow; print('Python ready')"
+python -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
 ```
 
-NumPy 하나만 설치하기보다 `requirements.txt` 전체를 설치해야 NumPy, PySerial,
-TensorFlow의 프로젝트 권장 버전이 함께 준비됩니다. 수업에서는 컴퓨터마다 다른
-가상환경을 찾는 혼란을 줄이기 위해 프로젝트 루트의 `.venv`를 사용하는 방식을
-권장합니다. `프로젝트 가상환경 없음`이 나오면 바로 위의 **2단계** macOS 명령 네
-줄을 프로젝트 루트에서 다시 실행하면 됩니다.
+`deactivate: command not found`가 나오면 첫 줄만 건너뜁니다. `.venv/bin/activate`가
+없다면 위의 **2단계**에서 `python3.11 -m venv .venv`부터 다시 실행합니다.
+`No module named 'numpy'` 또는 `No module named 'serial'`이 나오면 NumPy만 따로
+설치하지 말고 `python -m pip install -r requirements.txt`를 다시 실행합니다.
 
 `~/Documents/Arduino/libraries`는 `Arduino_OV767X`와 `Arduino_TensorFlowLite`를
 설치하는 **Arduino 라이브러리 폴더**입니다. Python 프로그램은 그곳이 아니라
@@ -400,12 +439,6 @@ macOS:
 ls /dev/cu.usbmodem*
 ```
 
-Ubuntu:
-
-```bash
-ls /dev/ttyACM*
-```
-
 아래 명령의 `COM5` 또는 `<PORT>`는 자기 컴퓨터에 표시된 포트로 바꿉니다.
 
 ### 4단계: 카메라와 TensorFlow Lite 라이브러리 설치
@@ -423,7 +456,7 @@ git clone https://github.com/arduino-libraries/Arduino_OV767X.git Arduino_OV767X
 git clone https://github.com/tensorflow/tflite-micro-arduino-examples.git Arduino_TensorFlowLite
 ```
 
-macOS/Ubuntu Terminal:
+macOS Terminal:
 
 ```bash
 mkdir -p ~/Documents/Arduino/libraries
@@ -444,7 +477,7 @@ git -C "$arduinoLibraries\Arduino_OV767X" pull
 git -C "$arduinoLibraries\Arduino_TensorFlowLite" pull
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 git -C ~/Documents/Arduino/libraries/Arduino_OV767X pull
@@ -470,7 +503,7 @@ Arduino_OV767X
 Arduino_TensorFlowLite
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 test -f ~/Documents/Arduino/libraries/Arduino_OV767X/src/Arduino_OV767X.h && echo "OV767X 준비 완료"
@@ -488,6 +521,7 @@ TensorFlow Lite Micro Arduino 저장소는 현재 읽기 전용 보관 상태이
 | `Arduino_OV767X.h: No such file or directory` | `Arduino_OV767X` 폴더가 Sketchbook의 `libraries`에 없거나 Sketchbook 위치가 다름 |
 | `TensorFlowLite.h: No such file or directory` | `Arduino_TensorFlowLite` GitHub 저장소를 받지 않았거나 폴더 이름이 다름 |
 | `'OV7675' was not declared` | 오래되거나 중복된 OV767X 라이브러리가 먼저 선택됨. Arduino IDE를 닫고 `libraries`의 중복 폴더를 확인한 뒤 위 GitHub 버전만 남김 |
+| `Didn't find op ... 'SHAPE'` | TensorFlow 2.21.0 등 다른 버전으로 모델을 생성했을 수 있음. TensorFlow 2.15.1을 다시 설치하고 모델 재학습 후 03을 다시 업로드 |
 
 컴파일할 때 `Precompiled library ... not found`가 표시되더라도 마지막에 메모리
 사용량이 나오면 오류가 아니라 소스 코드로 대신 컴파일했다는 경고입니다.
@@ -514,13 +548,7 @@ Windows 예시:
 macOS:
 
 ```bash
-./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
+python python/preview_camera.py --port /dev/cu.usbmodem1101
 ```
 
 `OV7675 원본 160x120 미리보기` 창이 열리고 실제 카메라 영상이 나타나면 통신에
@@ -553,13 +581,7 @@ Windows 예시:
 macOS:
 
 ```bash
-./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
+python python/preview_camera.py --port /dev/cu.usbmodem1101
 ```
 
 다음을 화면으로 확인합니다.
@@ -583,13 +605,7 @@ Windows:
 macOS:
 
 ```bash
-./.venv/bin/python python/collect_camera_data.py --port /dev/cu.usbmodem1101 --digits 0123 --per-digit 20
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/collect_camera_data.py --port /dev/ttyACM0 --digits 0123 --per-digit 20
+python python/collect_camera_data.py --port /dev/cu.usbmodem1101 --digits 0123 --per-digit 20
 ```
 
 수집 GUI의 의미는 다음과 같습니다.
@@ -621,7 +637,7 @@ Windows에서 저장 수를 확인합니다.
 Get-ChildItem data\camera_digits -Directory | ForEach-Object { "숫자 $($_.Name): $((Get-ChildItem $_.FullName -Filter '*.pgm').Count)장" }
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm' | wc -l)장"; done
@@ -634,9 +650,8 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 
 일반 학습에서는 완성된 `train_camera_model.py`를 수정하지 않고 실행합니다. 학생이
 CNN 구조를 직접 작성하는 활동은 별도의 `train_camera_model_exercise.py`에서
-진행합니다. 먼저 [카메라 CNN 학습 코드 실습](docs/AI_CODE_LAB.md)에서 사진이
-정규화, Conv2D, MaxPooling, Dense, Cross Entropy, Backpropagation을 거치는 위치를
-확인합니다.
+진행합니다. CNN 원리를 함께 공부할 때만 선택 자료인
+[카메라 CNN 학습 코드 실습](docs/AI_CODE_LAB.md)을 봅니다.
 
 Windows:
 
@@ -644,10 +659,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\camera_digits --output-dir models\camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/camera_digits --output-dir models/camera
+python python/train_camera_model.py --digits 0123 --data data/camera_digits --output-dir models/camera
 ```
 
 이 명령은 데이터 분리, 증강, CNN 학습, INT8 변환, 검증, Arduino 헤더 생성을
@@ -669,7 +684,7 @@ Test-Path -LiteralPath .\arduino\camera_03_inference\model_data.h
 Get-Item -LiteralPath .\arduino\camera_03_inference\model_data.h | Select-Object FullName, Length, LastWriteTime
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 test -f arduino/camera_03_inference/model_data.h && echo "model_data.h 생성 완료"
@@ -712,14 +727,7 @@ macOS:
 
 ```bash
 ls /dev/cu.usbmodem*
-./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-ls /dev/ttyACM*
-./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+python python/run_inference_gui.py --port /dev/cu.usbmodem1101
 ```
 
 GUI에서 숫자를 카메라에 보여 주고 `촬영 및 인식`을 누릅니다. 추론은 PC가 아니라
@@ -751,10 +759,10 @@ Windows 한 줄 명령:
 .\.venv\Scripts\python.exe python\rebuild_camera_digits.py --digits 0123 --input data\example_camera_full --output work\example_camera_digits_rebuilt
 ```
 
-macOS/Ubuntu 한 줄 명령:
+macOS 한 줄 명령:
 
 ```bash
-./.venv/bin/python python/rebuild_camera_digits.py --digits 0123 --input data/example_camera_full --output work/example_camera_digits_rebuilt
+python python/rebuild_camera_digits.py --digits 0123 --input data/example_camera_full --output work/example_camera_digits_rebuilt
 ```
 
 정상 결과:
@@ -789,10 +797,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\example_camera_digits --output-dir models\example_camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/example_camera_digits --output-dir models/example_camera
+python python/train_camera_model.py --digits 0123 --data data/example_camera_digits --output-dir models/example_camera
 ```
 
 방법 B에서 원본을 다시 전처리했다면 다음 명령을 사용합니다.
@@ -803,10 +811,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data work\example_camera_digits_rebuilt --output-dir models\example_camera_rebuilt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --digits 0123 --data work/example_camera_digits_rebuilt --output-dir models/example_camera_rebuilt
+python python/train_camera_model.py --digits 0123 --data work/example_camera_digits_rebuilt --output-dir models/example_camera_rebuilt
 ```
 
 이 명령은 다음 순서로 동작합니다.
@@ -843,7 +851,7 @@ Get-Item -LiteralPath .\arduino\camera_03_inference\model_data.h | Select-Object
 첫 명령이 `True`를 출력하고 두 번째 명령에 파일 크기와 수정 시간이 나오면
 Arduino용 모델이 생성된 것입니다.
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 test -f arduino/camera_03_inference/model_data.h && echo "model_data.h 생성 완료"
@@ -891,14 +899,7 @@ macOS 포트 확인과 실행:
 
 ```bash
 ls /dev/cu.usbmodem*
-./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu 포트 확인과 실행:
-
-```bash
-ls /dev/ttyACM*
-./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+python python/run_inference_gui.py --port /dev/cu.usbmodem1101
 ```
 
 예시 포트는 자신의 컴퓨터에 표시된 값으로 바꿉니다. `PermissionError`,
@@ -1054,10 +1055,12 @@ MNIST 검증 정확도가 높더라도 실제 카메라에서는 조명, 종이,
 - Arduino IDE 2
 - Arduino Mbed OS Nano Boards
 - 보드 FQBN: `arduino:mbed_nano:nano33ble`
-- Python 3.10 또는 3.11
+- Python 3.11.9
 - TensorFlow 2.15.1
 - NumPy 1.26.4
 - pyserial 3.5
+- Arduino_OV767X
+- Arduino_TensorFlowLite
 - OV7675: QQVGA 160×120, GRAYSCALE
 - 기본 클래스: 0, 1, 2, 3
 
@@ -1069,4 +1072,3 @@ MNIST 검증 정확도가 높더라도 실제 카메라에서는 조명, 종이,
 - [Arduino_OV767X 공식 저장소](https://github.com/arduino-libraries/Arduino_OV767X)
 - [TensorFlow Lite Micro Arduino 예제 저장소](https://github.com/tensorflow/tflite-micro-arduino-examples)
 - [Python 가상환경 공식 문서](https://docs.python.org/3/library/venv.html)
-- [Linux 포트 권한 해결](https://support.arduino.cc/hc/en-us/articles/360016495679-Fix-port-access-on-Linux)

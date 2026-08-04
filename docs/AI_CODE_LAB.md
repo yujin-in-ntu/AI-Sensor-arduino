@@ -192,10 +192,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
+python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
 ```
 
 그다음 `train_camera_model_exercise.py`의 PY1~PY8을 완성했다면 파일 이름만 바꿔
@@ -207,10 +207,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\exercise_camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model_exercise.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/exercise_camera
+python python/train_camera_model_exercise.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/exercise_camera
 ```
 
 ## 2부: Arduino에서 실제 추론 수식 완성
@@ -259,10 +259,10 @@ Windows:
 .\.venv\Scripts\python.exe python\check_exercises.py --part arduino
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/check_exercises.py --part arduino
+python python/check_exercises.py --part arduino
 ```
 
 검사 통과 후 Arduino IDE에서 학생용 스케치를 컴파일하고 업로드합니다. 모델은
@@ -275,7 +275,7 @@ Windows:
 Copy-Item arduino\camera_03_inference\model_data.h arduino\camera_03_inference_exercise\model_data.h -Force
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 cp arduino/camera_03_inference/model_data.h arduino/camera_03_inference_exercise/model_data.h

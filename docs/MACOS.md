@@ -29,10 +29,10 @@ xcode-select --install
 확인:
 
 ```bash
-python3 --version
+python3.11 --version
 ```
 
-권장 결과는 `Python 3.11.x`입니다. Python 3.10도 사용할 수 있습니다.
+결과는 `Python 3.11.x`여야 합니다. 수업에서는 Python 3.11.9와 TensorFlow 2.15.1 조합으로 통일합니다.
 
 Tkinter 확인:
 
@@ -83,18 +83,25 @@ test -f README.md && test -f requirements.txt && echo "프로젝트 경로 정�
 저장소 최상위 폴더에서 실행합니다.
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/python -m pip install --upgrade pip
-./.venv/bin/python -m pip install -r requirements.txt
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
 확인:
 
 ```bash
-./.venv/bin/python -c "import tensorflow, numpy, serial, tkinter; print('Python 패키지 준비 완료')"
+python -c "import tensorflow as tf, numpy, serial, tkinter; print('TensorFlow:', tf.__version__)"
 ```
 
-가상환경을 활성화하고 싶다면 `source .venv/bin/activate`를 사용할 수 있지만 필수는 아닙니다.
+결과가 반드시 `TensorFlow: 2.15.1`이어야 합니다. `2.21.0`처럼 다른 버전이면
+`python -m pip install --force-reinstall -r requirements.txt`를 실행하고 다시
+확인합니다. 다른 버전으로 만든 `model_data.h`는 Arduino의 TensorFlow Lite
+Micro와 호환되지 않을 수 있습니다.
+
+이후 명령은 가상환경이 활성화된 상태에서 `python`으로 실행합니다. 새 터미널을
+열었다면 프로젝트 폴더에서 `source .venv/bin/activate`를 다시 실행하세요.
 
 ## 6. Arduino 보드 패키지 설치
 
