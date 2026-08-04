@@ -231,22 +231,127 @@ python3 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements.txt
 ```
 
+마지막 `requirements.txt` 설치 명령은 이 프로젝트에 필요한 다음 세 패키지를
+처음부터 함께 설치합니다.
+
+| 설치되는 패키지 | Python 코드에서 사용하는 이름 | 역할 |
+|---|---|---|
+| `numpy` | `numpy` | 이미지 배열과 수치 계산 |
+| `pyserial` | `serial` | USB 시리얼 포트로 Arduino와 통신 |
+| `tensorflow` | `tensorflow` | CNN 학습과 INT8 모델 변환 |
+
+특히 설치 이름은 `pyserial`이지만 코드에서는 `import serial`로 불러옵니다.
+따라서 `No module named 'serial'`은 Arduino 코드 문제가 아니라 현재 Python
+가상환경에 `pyserial`이 설치되지 않았다는 뜻입니다. NumPy만 따로 설치하지 말고
+반드시 `requirements.txt` 전체를 설치하세요.
+
 설치 확인:
 
 Windows:
 
 ```powershell
+.\.venv\Scripts\python.exe -c "import numpy; print('NumPy ready:', numpy.__version__)"
+.\.venv\Scripts\python.exe -c "import serial; print('PySerial ready:', serial.__version__)"
 .\.venv\Scripts\python.exe -c "import numpy, serial, tensorflow; print('Python ready')"
 ```
 
 macOS/Ubuntu:
 
 ```bash
+./.venv/bin/python -c "import numpy; print('NumPy ready:', numpy.__version__)"
+./.venv/bin/python -c "import serial; print('PySerial ready:', serial.__version__)"
 ./.venv/bin/python -c "import numpy, serial, tensorflow; print('Python ready')"
 ```
 
 `Python ready`가 나오면 다음 단계로 이동합니다. TensorFlow 정보나 경고가 함께
 출력되어도 마지막에 `Python ready`가 있으면 설치가 완료된 것입니다.
+
+#### macOS: `(python-test)`는 보이는데 `./.venv/bin/python`이 없다고 할 때
+
+`./.venv/bin/python`에서 맨 앞의 `./`는 **현재 터미널 폴더**를 뜻합니다. 따라서
+이 명령은 현재 위치가 `~/Projects/AI-Sensor-arduino`이고, 그 안에 `.venv`가 있을
+때만 동작합니다. `~/Documents/Arduino/libraries`, `~/Projects`, 사용자 홈 폴더에서
+같은 명령을 실행하면 다음 오류가 날 수 있습니다.
+
+```text
+zsh: no such file or directory: ./.venv/bin/python
+```
+
+먼저 GitHub 프로젝트 루트로 돌아와 파일과 가상환경을 확인합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+pwd
+test -f python/preview_camera.py && echo "프로젝트 위치 정상"
+test -x .venv/bin/python && echo "프로젝트 가상환경 존재" || echo "프로젝트 가상환경 없음"
+```
+
+`프로젝트 위치 정상`과 `프로젝트 가상환경 존재`가 모두 나오면 다음처럼 실행합니다.
+
+```bash
+./.venv/bin/python -c "import numpy, serial, tensorflow; print('Python ready')"
+./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem12401
+```
+
+`/dev/cu.usbmodem12401`은 예시이므로 `ls /dev/cu.usbmodem*`에 표시된 자신의 포트로
+바꿉니다.
+
+터미널 명령줄 앞에 `(python-test)`처럼 괄호로 된 이름이 보인다면 다른 위치의
+가상환경이 이미 활성화된 상태일 수 있습니다. 다음 명령으로 실제 위치를 확인합니다.
+
+```bash
+echo "$VIRTUAL_ENV"
+which python
+python --version
+test -x "$VIRTUAL_ENV/bin/python" && echo "활성 가상환경 존재" || echo "활성 가상환경 없음"
+```
+
+`활성 가상환경 존재`가 나오면 `./.venv/bin/python` 대신 그냥 `python`을 사용할 수
+있습니다. 단, 명령은 프로젝트 루트로 이동한 뒤 실행해야 합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+python -c "import numpy, serial, tensorflow; print('Python ready')"
+python python/preview_camera.py --port /dev/cu.usbmodem12401
+```
+
+이때 `No module named 'numpy'`, `No module named 'serial'` 등이 나오면 현재 활성
+가상환경에 프로젝트 라이브러리가 아직 설치되지 않은 것입니다. `uv`로 만든
+가상환경이라면 다음 명령으로 필요한 라이브러리를 한꺼번에 설치합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+uv pip install -r requirements.txt
+python -c "import numpy; print('NumPy ready:', numpy.__version__)"
+python -c "import numpy, serial, tensorflow; print('Python ready')"
+```
+
+`uv pip install`은 먼저 `VIRTUAL_ENV`에 지정된 활성 가상환경을 찾습니다. 활성
+가상환경을 자동으로 찾지 못하거나 설치 대상을 확실하게 지정하고 싶다면 다음처럼
+Python 실행 파일을 직접 지정합니다.
+
+```bash
+uv pip install --python "$VIRTUAL_ENV/bin/python" -r requirements.txt
+```
+
+일반 `venv`이고 `pip`가 설치되어 있다면 다음 명령을 사용합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+python -m pip install -r requirements.txt
+python -c "import numpy, serial, tensorflow; print('Python ready')"
+```
+
+NumPy 하나만 설치하기보다 `requirements.txt` 전체를 설치해야 NumPy, PySerial,
+TensorFlow의 프로젝트 권장 버전이 함께 준비됩니다. 수업에서는 컴퓨터마다 다른
+가상환경을 찾는 혼란을 줄이기 위해 프로젝트 루트의 `.venv`를 사용하는 방식을
+권장합니다. `프로젝트 가상환경 없음`이 나오면 바로 위의 **2단계** macOS 명령 네
+줄을 프로젝트 루트에서 다시 실행하면 됩니다.
+
+`~/Documents/Arduino/libraries`는 `Arduino_OV767X`와 `Arduino_TensorFlowLite`를
+설치하는 **Arduino 라이브러리 폴더**입니다. Python 프로그램은 그곳이 아니라
+`~/Projects/AI-Sensor-arduino/python`에 있으므로, 카메라 명령은 항상
+`~/Projects/AI-Sensor-arduino`로 이동한 뒤 실행합니다.
 
 ## 기본 실습: 직접 촬영부터 추론까지 README 하나로 진행
 
