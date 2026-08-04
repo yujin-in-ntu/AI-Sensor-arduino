@@ -268,7 +268,7 @@ void makeDigitImage() {
   }
 }
 
-bool prepareInput() {
+bool runInference(bool guiMode) {
   if (!inputTensor || inputTensor->type != kTfLiteInt8 ||
       inputTensor->bytes != IMAGE_SIZE * IMAGE_SIZE) {
     Serial.println("오류: 모델 입력은 28x28 INT8이어야 합니다.");
@@ -293,10 +293,15 @@ bool prepareInput() {
     if (value > 127) value = 127;
     inputTensor->data.int8[i] = (int8_t)value;
   }
-  return true;
-}
 
-void sendPrediction(bool guiMode) {
+  // 위에서 채운 inputTensor를 모델에 넣어 실제 CNN 추론을 실행합니다.
+  // Invoke()가 끝나면 숫자별 INT8 점수가 outputTensor에 저장됩니다.
+  if (interpreter->Invoke() != kTfLiteOk) {
+    Serial.println("오류: 추론 실패");
+    return false;
+  }
+
+  // 이제 outputTensor의 숫자별 점수를 읽어 logit과 확률로 바꿉니다.
   float logits[10];
   float maxLogit = -1.0e30f;
   for (unsigned int i = 0; i < g_class_count; ++i) {
@@ -363,7 +368,7 @@ void sendPrediction(bool guiMode) {
       Serial.print(probabilities[i], 6);
     }
     Serial.println();
-    return;
+    return true;
   }
 
   for (unsigned int i = 0; i < g_class_count; ++i) {
@@ -380,6 +385,7 @@ void sendPrediction(bool guiMode) {
   Serial.print(", 신뢰도: ");
   Serial.print(bestProbability * 100.0f, 1);
   Serial.println("%");
+  return true;
 }
 
 void setupModel() {
@@ -451,11 +457,6 @@ void loop() {
   if (!guiMode && !monitorMode) return;
 
   makeDigitImage();
-  if (!prepareInput()) return;
-  if (interpreter->Invoke() != kTfLiteOk) {
-    Serial.println("오류: 추론 실패");
-    return;
-  }
-  sendPrediction(guiMode);
+  if (!runInference(guiMode)) return;
   if (!guiMode) Serial.println("다시 촬영하려면 p를 입력하세요.");
 }

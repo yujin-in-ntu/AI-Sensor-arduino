@@ -44,8 +44,7 @@ def report_remaining(path: Path, hints: dict[str, str]) -> bool:
 def check_arduino_structure() -> None:
     text = ARDUINO_EXERCISE.read_text(encoding="utf-8")
     required = [
-        "bool prepareInput()",
-        "void sendPrediction(bool guiMode)",
+        "bool runInference(bool guiMode)",
         "inputTensor->data.int8[i]",
         "outputTensor->data.int8[i]",
         "interpreter->Invoke()",

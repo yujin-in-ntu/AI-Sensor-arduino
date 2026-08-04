@@ -224,8 +224,7 @@ arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 `____ARD`를 검색하면 실제 추론 흐름 안의 학생 작성 구역 8개를 찾을 수 있습니다.
 
 ```cpp
-prepareInput()    // 입력 정규화와 INT8 양자화
-sendPrediction() // 역양자화, Softmax, 최댓값 선택
+runInference() // 입력 양자화 → Invoke() → 출력 역양자화 → Softmax → 최댓값 선택
 ```
 
 ### ARD1~ARD2: 입력 정규화와 양자화
