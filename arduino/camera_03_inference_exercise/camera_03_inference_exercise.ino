@@ -278,12 +278,16 @@ bool prepareInput() {
   float scale = inputTensor->params.scale;
   int zeroPoint = inputTensor->params.zero_point;
   for (int i = 0; i < IMAGE_SIZE * IMAGE_SIZE; ++i) {
-    // TODO ARD1: 실제 입력 픽셀을 0~1 실수로 정규화합니다.
-    // 힌트: 정수 나눗셈을 피하려면 255.0f처럼 실수를 사용합니다.
+    // ARD1:
+    // normalized 변수에는 입력 픽셀을 0~1 범위로 정규화한 값이 들어가야 합니다.
+    // digitImage[i]는 현재 입력 픽셀이며 0~255의 숫자로 이루어져 있습니다.
+    // digitImage[i]를 이용해 정규화 수식을 작성하세요.
     float normalized = ____ARD1____;
 
-    // TODO ARD2: 정규화한 값을 모델 입력 INT8 좌표로 양자화합니다.
-    // 힌트: normalized / scale을 roundf()로 반올림한 뒤 zeroPoint를 더합니다.
+    // ARD2:
+    // value 변수에는 normalized를 모델 입력용 INT8 좌표로 바꾼 값이 들어가야 합니다.
+    // scale은 INT8 한 칸의 실수 간격이고 zeroPoint는 실수 0의 INT8 위치입니다.
+    // normalized, scale, zeroPoint와 반올림 함수 roundf()를 이용해 수식을 작성하세요.
     int value = ____ARD2____;
     if (value < -128) value = -128;
     if (value > 127) value = 127;
@@ -296,8 +300,10 @@ void sendPrediction(bool guiMode) {
   float logits[10];
   float maxLogit = -1.0e30f;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    // TODO ARD3: 실제 INT8 모델 출력을 다시 실수 logit으로 역양자화합니다.
-    // 힌트: (INT8값 - zeroPoint) * scale 순서입니다.
+    // ARD3:
+    // logits[i]에는 모델의 INT8 출력을 다시 실수 점수로 바꾼 값이 들어가야 합니다.
+    // outputTensor->data.int8[i]는 현재 INT8 출력값입니다.
+    // 출력의 zero_point와 scale을 함께 이용해 역양자화 수식을 작성하세요.
     logits[i] = ____ARD3____;
     if (logits[i] > maxLogit) maxLogit = logits[i];
   }
@@ -305,8 +311,10 @@ void sendPrediction(bool guiMode) {
   float probabilities[10];
   float total = 0;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    // TODO ARD4: 실제 Softmax 분자를 계산합니다.
-    // 힌트: 값이 너무 커지지 않도록 expf(logits[i] - maxLogit)을 사용합니다.
+    // ARD4:
+    // probabilities[i]에는 현재 logit의 Softmax 분자가 들어가야 합니다.
+    // expf()는 지수함수이고 maxLogit은 지수값이 너무 커지는 것을 막는 기준값입니다.
+    // logits[i], maxLogit과 expf()를 이용해 수식을 작성하세요.
     probabilities[i] = ____ARD4____;
     total += probabilities[i];
   }
@@ -314,14 +322,24 @@ void sendPrediction(bool guiMode) {
   int bestIndex = 0;
   float bestProbability = 0;
   for (unsigned int i = 0; i < g_class_count; ++i) {
-    // TODO ARD5: 모든 클래스 확률의 합이 1이 되게 만듭니다.
-    probabilities[i] ____ARD5____;
+    // ARD5:
+    // total에는 모든 Softmax 분자를 더한 값이 들어 있습니다.
+    // probabilities[i]가 0~1 범위의 실제 확률이 되도록 현재 값과 total로 수식을 작성하세요.
+    probabilities[i] = ____ARD5____;
 
-    // TODO ARD6~ARD8: 실제 예측 숫자가 될 가장 큰 확률의 위치를 찾습니다.
-    // 힌트: 비교에는 >, 값 저장에는 = 를 사용합니다.
+    // ARD6:
+    // 현재 probabilities[i]가 지금까지의 bestProbability보다 클 때만 실행해야 합니다.
+    // 두 변수를 비교하는 if 조건식을 작성하세요.
     if (____ARD6____) {
-      ____ARD7____;
-      ____ARD8____;
+      // ARD7:
+      // bestProbability에는 지금까지 발견한 가장 큰 확률을 저장합니다.
+      // 현재 확률 probabilities[i]를 이용해 대입문의 오른쪽을 작성하세요.
+      bestProbability = ____ARD7____;
+
+      // ARD8:
+      // bestIndex에는 가장 큰 확률이 발견된 클래스 위치를 저장합니다.
+      // 현재 반복 위치 i를 이용해 대입문의 오른쪽을 작성하세요.
+      bestIndex = ____ARD8____;
     }
   }
 

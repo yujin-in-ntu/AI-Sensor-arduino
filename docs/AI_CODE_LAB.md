@@ -221,7 +221,7 @@ Arduino IDE 2에서 다음 파일을 엽니다.
 arduino/camera_03_inference_exercise/camera_03_inference_exercise.ino
 ```
 
-`____ARD`를 검색하면 실제 추론 흐름 안의 TODO 8개를 찾을 수 있습니다.
+`____ARD`를 검색하면 실제 추론 흐름 안의 학생 작성 구역 8개를 찾을 수 있습니다.
 
 ```cpp
 prepareInput()    // 입력 정규화와 INT8 양자화
