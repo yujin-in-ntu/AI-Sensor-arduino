@@ -32,14 +32,14 @@ Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 Test-Path -LiteralPath .\requirements.txt
 ```
 
-macOS/Ubuntu Terminal:
+macOS Terminal:
 
 ```bash
 cd ~/Projects/AI-Sensor-arduino
 test -f requirements.txt && echo "프로젝트 경로 정상"
 ```
 
-Windows에서 `True`, macOS/Ubuntu에서 `프로젝트 경로 정상`이 나와야 합니다.
+Windows에서 `True`, macOS에서 `프로젝트 경로 정상`이 나와야 합니다.
 다른 위치에 이미 저장소를 받은 사용자는 자신의 실제 경로를 사용할 수 있지만,
 한 실습 도중에는 저장소를 옮기거나 두 복사본을 번갈아 사용하지 마세요.
 
@@ -55,12 +55,6 @@ macOS:
 
 ```bash
 ls /dev/cu.usbmodem*
-```
-
-Ubuntu:
-
-```bash
-ls /dev/ttyACM*
 ```
 
 아래 예제의 `COM5` 또는 `<PORT>`를 자신의 포트로 바꾸세요.
@@ -96,13 +90,7 @@ Windows:
 macOS:
 
 ```bash
-./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
+python python/preview_camera.py --port /dev/cu.usbmodem1101
 ```
 
 160×120 원본 확인 창에 실제 카메라 영상이 나오면 성공입니다. `한 장 촬영`으로
@@ -134,13 +122,7 @@ Windows:
 macOS:
 
 ```bash
-./.venv/bin/python python/preview_camera.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/preview_camera.py --port /dev/ttyACM0
+python python/preview_camera.py --port /dev/cu.usbmodem1101
 ```
 
 카메라 원본 창이 열리면 다음을 확인합니다.
@@ -165,13 +147,7 @@ Windows:
 macOS:
 
 ```bash
-./.venv/bin/python python/collect_camera_data.py --port /dev/cu.usbmodem1101 --digits 0123 --per-digit 20
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/collect_camera_data.py --port /dev/ttyACM0 --digits 0123 --per-digit 20
+python python/collect_camera_data.py --port /dev/cu.usbmodem1101 --digits 0123 --per-digit 20
 ```
 
 ### 수집 GUI 읽는 법
@@ -203,7 +179,7 @@ Windows:
 Get-ChildItem data\camera_digits -Directory | ForEach-Object { "숫자 $($_.Name): $((Get-ChildItem $_.FullName -Filter '*.pgm').Count)장" }
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm' | wc -l)장"; done
@@ -226,10 +202,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --digits 0123
+python python/train_camera_model.py --digits 0123
 ```
 
 학습 스크립트는 다음 작업을 자동으로 수행합니다.
@@ -285,13 +261,7 @@ Windows:
 macOS:
 
 ```bash
-./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+python python/run_inference_gui.py --port /dev/cu.usbmodem1101
 ```
 
 숫자를 놓고 `촬영 및 인식`을 누릅니다. 추론은 PC TensorFlow가 아니라 Arduino 보드 안의 INT8 모델이 수행합니다. PC는 원본과 결과를 받아 화면에 보여 줍니다.
@@ -306,10 +276,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_mnist_model.py --digits 0123 --per-digit 2000
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_mnist_model.py --digits 0123 --per-digit 2000
+python python/train_mnist_model.py --digits 0123 --per-digit 2000
 ```
 
 이 스크립트는 카메라에서 숫자가 가늘게 보이는 상황을 반영해 여러 가로폭의 MNIST 변형도 함께 학습합니다.
@@ -335,7 +305,7 @@ Windows:
 Copy-Item models\camera\model_data.h arduino\camera_03_inference\model_data.h -Force
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 cp models/camera/model_data.h arduino/camera_03_inference/model_data.h
@@ -349,7 +319,7 @@ Windows:
 Copy-Item models\mnist\model_data.h arduino\camera_03_inference\model_data.h -Force
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
 cp models/mnist/model_data.h arduino/camera_03_inference/model_data.h
@@ -368,11 +338,11 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123456789
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/collect_camera_data.py --port <PORT> --digits 0123456789 --per-digit 20
-./.venv/bin/python python/train_camera_model.py --digits 0123456789
+python python/collect_camera_data.py --port <PORT> --digits 0123456789 --per-digit 20
+python python/train_camera_model.py --digits 0123456789
 ```
 
 모델 클래스 수와 실제 숫자 라벨은 생성된 헤더에 자동으로 기록됩니다.
@@ -387,10 +357,10 @@ Windows:
 .\.venv\Scripts\python.exe python\rebuild_camera_digits.py --digits 0123 --input data\camera_full --output data\camera_digits_rebuilt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/rebuild_camera_digits.py --digits 0123 --input data/camera_full --output data/camera_digits_rebuilt
+python python/rebuild_camera_digits.py --digits 0123 --input data/camera_full --output data/camera_digits_rebuilt
 ```
 
 새 폴더로 학습하려면 `--data`를 지정합니다.
@@ -401,10 +371,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\camera_digits_rebuilt --output-dir models\camera_rebuilt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --digits 0123 --data data/camera_digits_rebuilt --output-dir models/camera_rebuilt
+python python/train_camera_model.py --digits 0123 --data data/camera_digits_rebuilt --output-dir models/camera_rebuilt
 ```
 
 문제가 생기면 [오류 해결 문서](TROUBLESHOOTING.md)를 확인하세요.

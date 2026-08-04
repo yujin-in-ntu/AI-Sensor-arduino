@@ -32,10 +32,10 @@ Windows PowerShell:
   --output-dir models\example_camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py \
+python python/train_camera_model.py \
   --digits 0123 \
   --data data/example_camera_digits \
   --output-dir models/example_camera
@@ -77,10 +77,10 @@ Windows:
   --output work\example_camera_digits_rebuilt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/rebuild_camera_digits.py \
+python python/rebuild_camera_digits.py \
   --digits 0123 \
   --input data/example_camera_full \
   --output work/example_camera_digits_rebuilt
@@ -98,10 +98,10 @@ Windows:
   --output-dir models\example_camera_rebuilt
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py \
+python python/train_camera_model.py \
   --digits 0123 \
   --data work/example_camera_digits_rebuilt \
   --output-dir models/example_camera_rebuilt
@@ -127,13 +127,7 @@ Windows에서 추론 GUI 실행:
 macOS:
 
 ```bash
-./.venv/bin/python python/run_inference_gui.py --port /dev/cu.usbmodem1101
-```
-
-Ubuntu:
-
-```bash
-./.venv/bin/python python/run_inference_gui.py --port /dev/ttyACM0
+python python/run_inference_gui.py --port /dev/cu.usbmodem1101
 ```
 
 포트 이름은 자신의 컴퓨터에서 확인한 값으로 바꿉니다.
@@ -150,10 +144,10 @@ Windows:
 .\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
 ```
 
-macOS/Ubuntu:
+macOS:
 
 ```bash
-./.venv/bin/python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
+python python/train_camera_model.py --data data/example_camera_digits --digits 0123 --epochs 3 --output-dir models/example_camera
 ```
 
 성공하면 Arduino 완성본 폴더에 모델 헤더가 생성됩니다. 전체 학습 코드 설명과

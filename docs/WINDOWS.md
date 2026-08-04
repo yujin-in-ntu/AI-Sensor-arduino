@@ -30,7 +30,7 @@ git --version
 python --version
 ```
 
-권장 결과는 `Python 3.11.x`입니다. 이 프로젝트는 Python 3.10도 지원하지만 Python 3.12 이상은 고정된 TensorFlow 2.15.1과 맞지 않을 수 있습니다.
+결과는 `Python 3.11.x`여야 합니다. 수업에서는 Python 3.11.9와 TensorFlow 2.15.1 조합으로 통일합니다.
 
 기본 사용자 설치 경로는 보통 다음과 같습니다.
 
