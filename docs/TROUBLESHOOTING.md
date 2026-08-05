@@ -33,7 +33,7 @@ Windows 확인:
 ```powershell
 Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 Test-Path -LiteralPath .\requirements.txt
-Test-Path -LiteralPath .\.venv\Scripts\python.exe
+Test-Path -LiteralPath .\.venv\Scripts\Activate.ps1
 ```
 
 macOS 확인:
@@ -52,21 +52,30 @@ py is not recognized
 python is not recognized
 ```
 
-Python 3.11을 설치하고 새 터미널을 엽니다. Windows 설치 시 `Add python.exe to PATH`를 체크합니다.
+Python 3.14가 설치되어 있어도 삭제하지 않습니다. 최신 Python Install Manager가
+있다면 `py install 3.11`을 실행하고, 그렇지 않으면 Python 3.11.9 설치 파일을
+사용합니다.
 
 확인:
 
 ```powershell
-python --version
+py -3.11 --version
 ```
 
 ## `Activate.ps1`을 실행할 수 없음
 
-이 프로젝트는 가상환경 활성화가 필요 없습니다. 다음처럼 가상환경 Python을 직접 실행하세요.
+현재 PowerShell 창에만 실행 정책을 적용하고 다시 활성화합니다. 관리자 권한은
+필요하지 않습니다.
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
+python --version
+python -m pip install -r requirements.txt
 ```
+
+기관 정책으로 계속 차단되면 명령 프롬프트에서 `.venv\Scripts\activate.bat`을
+실행합니다.
 
 ## `requirements.txt`를 찾을 수 없음
 
@@ -173,7 +182,7 @@ mbed_nano 아키텍처에서 실행되는 현재 보드에서는 호환되지 �
 Arduino 업로드는 보드 프로그램만 바꿉니다. PC GUI는 자동으로 열리지 않습니다. 시리얼 모니터를 닫고 Python GUI를 별도로 실행하세요.
 
 ```powershell
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 ## 수집을 중간에 종료하거나 USB를 뺌
@@ -205,13 +214,13 @@ MNIST와 실제 카메라는 데이터 분포가 다릅니다.
 다음 중 하나를 먼저 실행합니다.
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123
+python python\train_camera_model.py --digits 0123
 ```
 
 또는:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_mnist_model.py --digits 0123 --per-digit 2000
+python python\train_mnist_model.py --digits 0123 --per-digit 2000
 ```
 
 그 뒤 `camera_03_inference.ino`를 다시 업로드합니다.
@@ -244,6 +253,18 @@ RESET 버튼을 빠르게 두 번 누르면 부트로더 포트가 나타날 수
 
 빈 저장소에 아직 첫 커밋이 없다는 뜻입니다. 이 프로젝트를 사용하는 학생은 직접 `git init`하지 말고 `git clone`으로 시작하는 것이 가장 간단합니다.
 
-```text
-git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Path "$env:USERPROFILE\Projects" -Force
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+```
+
+macOS Terminal:
+
+```bash
+mkdir -p ~/Projects
+git clone https://github.com/yujin-in-ntu/AI-Sensor-arduino.git ~/Projects/AI-Sensor-arduino
+cd ~/Projects/AI-Sensor-arduino
 ```

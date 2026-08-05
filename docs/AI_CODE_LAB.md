@@ -5,6 +5,10 @@
 `python/train_camera_model_exercise.py`의 실제 CNN 구조를 작성합니다. Arduino에서는
 별도의 학생용 스케치에서 실제 추론 수식을 작성합니다.
 
+Python 명령을 실행하기 전에는 저장소 루트로 이동하고 가상환경을 활성화합니다.
+Windows는 `$env:USERPROFILE\Projects\AI-Sensor-arduino`, macOS는
+`~/Projects/AI-Sensor-arduino`로 이동한 뒤 각 운영체제의 활성화 명령을 실행합니다.
+
 ```text
 28×28 숫자 사진과 정답
   → 0~1 정규화
@@ -189,7 +193,7 @@ optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
+python python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
 ```
 
 macOS:
@@ -204,7 +208,7 @@ python python/train_camera_model.py --data data/example_camera_digits --digits 0
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\exercise_camera
+python python\train_camera_model_exercise.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\exercise_camera
 ```
 
 macOS:
@@ -256,7 +260,7 @@ runInference() // 입력 양자화 → Invoke() → 출력 역양자화 → Soft
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\check_exercises.py --part arduino
+python python\check_exercises.py --part arduino
 ```
 
 macOS:

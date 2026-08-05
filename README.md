@@ -2,6 +2,10 @@
 
 Arduino Tiny Machine Learning Kit의 OV7675 카메라로 종이에 쓴 숫자를 촬영하고, 직접 만든 데이터 또는 MNIST로 작은 CNN을 학습한 뒤, Nano 33 BLE Sense Lite에서 추론하는 입문 프로젝트입니다.
 
+> **Python 설치가 관리자 권한 때문에 막히나요?**
+>
+> 기본 순서와 섞지 말고 [관리자 권한 없이 Python 3.11 환경 만들기](docs/NO_ADMIN_PYTHON.md)를 먼저 완료하세요.
+
 이 저장소의 기본 실습 범위는 숫자 `0, 1, 2, 3`입니다. 명령의 `--digits` 값을 바꾸면 `0~9`로 확장할 수 있습니다.
 
 ## 이 프로젝트에서 해보는 것
@@ -33,6 +37,7 @@ Windows와 macOS 모두 아래의 **0단계부터 10단계까지 이 README만 �
 
 - [Windows 설치](docs/WINDOWS.md)
 - [macOS 설치](docs/MACOS.md)
+- [관리자 권한 없이 Python 3.11 환경 만들기](docs/NO_ADMIN_PYTHON.md)
 - [프로그램·프로젝트·Arduino 라이브러리 정확한 경로](docs/PATHS.md)
 - [Arduino CLI로 컴파일·업로드](docs/ARDUINO_CLI.md) — 선택 사항
 
@@ -77,6 +82,12 @@ GitHub 프로젝트와 Arduino 라이브러리를 같은 폴더에 넣지 않습
 | Arduino Sketchbook | `C:\Users\<사용자이름>\Documents\Arduino` | `~/Documents/Arduino` |
 | Arduino 라이브러리 | `...\Documents\Arduino\libraries` | `~/Documents/Arduino/libraries` |
 
+Python 명령을 실행할 때 터미널의 현재 위치는 항상 GitHub 프로젝트 행의 경로여야
+합니다. 현재 경로가 `Documents/Arduino/libraries`로 끝나면 Python 명령을 실행하지
+말고 프로젝트 루트로 돌아오세요. `.venv`를 만든 뒤에는 프로젝트 폴더의 이름이나
+위치를 바꾸지 않습니다. 옮겼다면 이전 `.venv`를 재사용하지 말고 새 위치에서 다시
+만들어야 합니다.
+
 Arduino IDE와 Python 본체는 운영체제의 프로그램 영역에 설치하고, 촬영 데이터와
 모델은 GitHub 프로젝트 안에 둡니다. 경로 문제가 생겼을 때만 선택 자료인
 [설치 경로와 작업 폴더 기준](docs/PATHS.md)을 참고합니다.
@@ -105,35 +116,38 @@ Terminal을 엽니다.
 
 #### 0-2. Python 3.11 확인 및 설치
 
-이 프로젝트는 `TensorFlow 2.15.1`을 사용하므로 **Python 3.11.9 64비트**를
-사용합니다. 최신 버전이라는 이유로 Python 3.12 이상을 설치하지 마세요.
+이 프로젝트는 `TensorFlow 2.15.1`을 사용하므로 **Python 3.11.x 64비트**를
+사용합니다. Python 3.14가 이미 설치되어 있어도 삭제할 필요가 없습니다.
 
-Windows PowerShell에서 먼저 확인합니다.
+Windows PowerShell에서 설치된 버전을 먼저 확인합니다. Python 3.14가 이미 있어도
+삭제하지 않습니다.
 
 ```powershell
-python --version
+py list
+py -3.11 --version
 ```
 
-`Python 3.11.x`가 나오면 Python 설치는 끝난 것입니다. 다음과 같은 경우에는
-Python을 새로 설치합니다.
+`py -3.11 --version`에서 `Python 3.11.x`가 나오면 준비가 끝난 것입니다. 3.11이
+없고 최신 [Python Install Manager](https://docs.python.org/3/using/windows.html)가
+설치되어 있다면 다음 명령으로 3.11을 추가합니다.
 
-- `python`을 찾을 수 없다는 오류가 나옵니다.
-- Microsoft Store만 열리고 버전이 표시되지 않습니다.
-- Python 3.12 이상의 버전이 표시됩니다.
+```powershell
+py install 3.11
+py -3.11 --version
+```
 
-Windows 설치 순서:
+`py install`이 인식되지 않는 이전 launcher라면 설치 파일을 사용합니다.
 
 1. [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)를 엽니다.
 2. 페이지 아래 `Files`에서 `Windows installer (64-bit)`를 내려받습니다.
-3. 설치 프로그램 첫 화면에서 **`Add python.exe to PATH`를 반드시 체크**합니다.
-4. `Install Now`를 누르고 설치를 완료합니다.
-5. 열려 있던 PowerShell을 모두 닫고 새 PowerShell을 엽니다.
-6. `python --version`을 다시 실행해 `Python 3.11.x`가 나오는지 확인합니다.
+3. Python 3.14와 함께 사용해도 되므로 기존 버전을 삭제하지 않습니다.
+4. 이 프로젝트는 `py -3.11`로 버전을 지정하므로 `Add python.exe to PATH`는 필수가 아닙니다.
+5. `Install Now`를 누르고 설치를 완료합니다.
+6. 열려 있던 PowerShell을 모두 닫고 새 PowerShell을 엽니다.
+7. `py -3.11 --version`을 실행해 `Python 3.11.x`가 나오는지 확인합니다.
 
-설치했는데도 `python`을 찾지 못하면 설치 프로그램을 다시 실행해 `Modify`에서
-PATH 관련 항목을 활성화합니다. `py -3.11 --version`만 정상 동작하는 경우에는
-2단계의 첫 명령을 `py -3.11 -m venv .venv`로 실행해도 됩니다. 가상환경을 만든
-뒤에는 문서에 적힌 `\.venv\Scripts\python.exe` 명령을 그대로 사용합니다.
+전역 `python` 명령이 Python 3.14를 가리켜도 괜찮습니다. 2단계에서 `py -3.11`로
+가상환경을 만든 다음부터는 가상환경을 활성화하고 `python`만 사용합니다.
 
 macOS 설치 순서:
 
@@ -148,43 +162,6 @@ python3.11 --version
 
 `python3 --version`이 3.12 이상이어도 괜찮지만 이 프로젝트의 가상환경은 반드시
 아래 2단계에서 `python3.11` 명령으로 만듭니다.
-
-#### 관리자 권한 없이 Python 3.11.9를 준비해야 할 때
-
-학교·기관 컴퓨터에서 Python 설치 프로그램이 관리자 암호를 요구한다면 `uv`를
-사용해 현재 사용자 폴더에 Python 3.11.9를 설치할 수 있습니다. 관리자 권한이 있는
-컴퓨터에서는 위의 일반 설치 방법을 사용하면 되며, `uv`를 추가로 설치할 필요가
-없습니다.
-
-Windows PowerShell:
-
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-macOS Terminal:
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-설치 후 PowerShell 또는 Terminal을 완전히 닫았다가 다시 열고 확인합니다.
-
-```text
-uv --version
-```
-
-그다음 Python 3.11.9를 현재 사용자 영역에 설치합니다.
-
-```text
-uv python install 3.11.9
-```
-
-`uv`는 Python이 없어도 실행할 수 있으며, 요청한 Python을 사용자 영역에 내려받아
-관리합니다. 기관의 보안 정책이 외부 다운로드나 설치 스크립트 자체를 차단한다면
-이 방법도 사용할 수 없으므로 담당 관리자에게 설치를 요청해야 합니다. 자세한
-동작은 [uv 공식 Python 설치 안내](https://docs.astral.sh/uv/guides/install-python/)를
-참고하세요.
 
 #### 0-3. Arduino IDE 2 설치
 
@@ -263,30 +240,32 @@ Windows에서는 프로젝트 경로와 네 개의 `True`, macOS에서는
 
 Python 3.11.x를 사용합니다. 먼저 버전을 확인합니다.
 
-Windows:
+Windows PowerShell에서는 Python 3.11을 명시해 `.venv`를 만들고 활성화합니다.
+`Set-ExecutionPolicy`는 현재 PowerShell 창에만 적용되며 관리자 권한이 필요하지
+않습니다.
 
 ```powershell
+py -3.11 --version
+py -3.11 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
 python --version
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-일반 Python 설치가 되어 있다면 가상환경을 만들고 필요한 라이브러리를 설치합니다.
+활성화되면 명령줄 앞에 `(.venv)`가 표시되고 `python --version`은 Python 3.11.x가
+나옵니다. 이후 Windows 명령도 macOS와 마찬가지로 모두 `python`으로 시작합니다.
+새 PowerShell을 열 때마다 프로젝트 폴더에서 다음 세 줄을 다시 실행합니다.
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
 ```
 
-관리자 권한 없이 `uv`로 Python을 준비했다면 첫 줄 대신 다음 명령으로 가상환경을
-만든 후, 위의 두 `\.venv\Scripts\python.exe` 설치 명령을 실행합니다.
-
-```powershell
-uv venv --python 3.11.9 --seed .venv
-```
-
-Windows에서는 PowerShell 실행 정책 문제를 피하기 위해 `Activate.ps1`을 실행하지
-않습니다. 이후에도 항상 `.\.venv\Scripts\python.exe`로 가상환경 Python을 직접
-실행합니다.
+기관 정책 때문에 `Activate.ps1`이 계속 차단된다면 명령 프롬프트에서
+`.venv\Scripts\activate.bat`을 실행하는 방법도 있습니다.
 
 macOS:
 
@@ -296,14 +275,6 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-```
-
-관리자 권한 없이 `uv`로 Python을 준비했다면 위의 첫 두 줄 대신 다음 두 줄로
-가상환경을 만든 뒤, `python -m pip install`로 시작하는 나머지 두 줄을 실행합니다.
-
-```bash
-uv venv --python 3.11.9 --seed .venv
-source .venv/bin/activate
 ```
 
 `source .venv/bin/activate`를 실행하면 터미널 앞에 `(.venv)` 같은 표시가 생깁니다.
@@ -334,9 +305,9 @@ source .venv/bin/activate
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe -c "import numpy; print('NumPy ready:', numpy.__version__)"
-.\.venv\Scripts\python.exe -c "import serial; print('PySerial ready:', serial.__version__)"
-.\.venv\Scripts\python.exe -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
+python -c "import numpy; print('NumPy ready:', numpy.__version__)"
+python -c "import serial; print('PySerial ready:', serial.__version__)"
+python -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
 ```
 
 macOS:
@@ -354,7 +325,7 @@ python -c "import tensorflow as tf; print('TensorFlow ready:', tf.__version__)"
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade --force-reinstall -r requirements.txt
+python -m pip install --upgrade --force-reinstall -r requirements.txt
 ```
 
 macOS:
@@ -510,6 +481,27 @@ test -f ~/Documents/Arduino/libraries/Arduino_OV767X/src/Arduino_OV767X.h && ech
 test -f ~/Documents/Arduino/libraries/Arduino_TensorFlowLite/src/TensorFlowLite.h && echo "TensorFlow Lite 준비 완료"
 ```
 
+#### 4-2. Python 작업 폴더로 반드시 돌아오기
+
+라이브러리 설치 과정에서 현재 위치가 Arduino의 `libraries` 폴더로 바뀌었습니다.
+이후 Python 명령은 모두 프로젝트 루트에서 실행해야 하므로 다음 명령으로 돌아옵니다.
+
+Windows PowerShell:
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Test-Path -LiteralPath .\README.md
+```
+
+macOS Terminal:
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+test -f README.md && echo "프로젝트 경로 정상"
+```
+
+Windows에서는 `True`, macOS에서는 `프로젝트 경로 정상`이 나와야 합니다.
+
 이 두 라이브러리는 `AI-Sensor-arduino` 저장소 안에 포함되어 있지 않습니다.
 TensorFlow Lite Micro Arduino 저장소는 현재 읽기 전용 보관 상태이지만 이
 프로젝트에서 사용한 Nano 33 BLE용 소스를 제공합니다.
@@ -542,7 +534,7 @@ arduino/camera_01_check/camera_01_check.ino
 Windows 예시:
 
 ```powershell
-.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+python python\preview_camera.py --port COM5
 ```
 
 macOS:
@@ -575,7 +567,7 @@ arduino/camera_02_collect/camera_02_collect.ino
 Windows 예시:
 
 ```powershell
-.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+python python\preview_camera.py --port COM5
 ```
 
 macOS:
@@ -599,7 +591,7 @@ python python/preview_camera.py --port /dev/cu.usbmodem1101
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\collect_camera_data.py --port COM5 --digits 0123 --per-digit 20
+python python\collect_camera_data.py --port COM5 --digits 0123 --per-digit 20
 ```
 
 macOS:
@@ -656,7 +648,7 @@ CNN 구조를 직접 작성하는 활동은 별도의 `train_camera_model_exerci
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\camera_digits --output-dir models\camera
+python python\train_camera_model.py --digits 0123 --data data\camera_digits --output-dir models\camera
 ```
 
 macOS:
@@ -720,7 +712,7 @@ Windows 포트 확인과 실행:
 
 ```powershell
 Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 macOS:
@@ -756,7 +748,7 @@ GitHub 저장소에 이미 포함된 숫자 `0~3` 예제 데이터를 사용합�
 Windows 한 줄 명령:
 
 ```powershell
-.\.venv\Scripts\python.exe python\rebuild_camera_digits.py --digits 0123 --input data\example_camera_full --output work\example_camera_digits_rebuilt
+python python\rebuild_camera_digits.py --digits 0123 --input data\example_camera_full --output work\example_camera_digits_rebuilt
 ```
 
 macOS 한 줄 명령:
@@ -778,7 +770,7 @@ python python/rebuild_camera_digits.py --digits 0123 --input data/example_camera
 
 | 명령 부분 | 역할 |
 |---|---|
-| `.\.venv\Scripts\python.exe` | 이 프로젝트의 Windows 가상환경 Python 실행 |
+| `python` | 활성화된 프로젝트 가상환경의 Python 실행 |
 | `python\rebuild_camera_digits.py` | 저장된 원본을 다시 전처리하는 프로그램 |
 | `--digits 0123` | 숫자 0, 1, 2, 3만 처리 |
 | `--input data\example_camera_full` | 160×120 원본이 있는 입력 폴더 |
@@ -794,7 +786,7 @@ python python/rebuild_camera_digits.py --digits 0123 --input data/example_camera
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\example_camera_digits --output-dir models\example_camera
+python python\train_camera_model.py --digits 0123 --data data\example_camera_digits --output-dir models\example_camera
 ```
 
 macOS:
@@ -808,7 +800,7 @@ python python/train_camera_model.py --digits 0123 --data data/example_camera_dig
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data work\example_camera_digits_rebuilt --output-dir models\example_camera_rebuilt
+python python\train_camera_model.py --digits 0123 --data work\example_camera_digits_rebuilt --output-dir models\example_camera_rebuilt
 ```
 
 macOS:
@@ -892,7 +884,7 @@ Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name
 예를 들어 `COM5`로 나온 경우:
 
 ```powershell
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 macOS 포트 확인과 실행:
@@ -930,7 +922,7 @@ GUI에서 종이에 쓴 숫자를 카메라에 보여 주고 `촬영 및 인식`
 다른 문서에서 다음처럼 줄 끝에 백틱이 붙은 명령을 볼 수 있습니다.
 
 ```powershell
-.\.venv\Scripts\python.exe python\rebuild_camera_digits.py `
+python python\rebuild_camera_digits.py `
   --digits 0123 `
   --input data\example_camera_full `
   --output work\example_camera_digits_rebuilt

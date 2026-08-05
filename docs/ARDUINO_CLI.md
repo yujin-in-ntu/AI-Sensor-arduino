@@ -2,6 +2,24 @@
 
 Arduino IDE 2의 버튼 대신 터미널 명령으로 스케치를 컴파일하고 업로드하는 선택 과정입니다. 처음 배우는 학생은 IDE 2 방식부터 성공시킨 뒤 사용하는 것을 권장합니다.
 
+이 문서의 Python 카메라 GUI 명령을 실행할 때는 먼저 프로젝트 가상환경을
+활성화합니다.
+
+Windows PowerShell:
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
+```
+
+macOS:
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+source .venv/bin/activate
+```
+
 ## 1. Arduino CLI 설치
 
 [Arduino CLI 공식 설치 문서](https://docs.arduino.cc/arduino-cli/installation)를 따라 설치합니다.
@@ -72,7 +90,7 @@ arduino-cli upload --port <PORT> --fqbn arduino:mbed_nano:nano33ble arduino/came
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+python python\preview_camera.py --port COM5
 ```
 
 macOS:
@@ -114,7 +132,7 @@ arduino-cli upload --port <PORT> --fqbn arduino:mbed_nano:nano33ble arduino/came
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 macOS:

@@ -69,14 +69,14 @@ Python이나 Arduino IDE 설치 프로그램에서 다른 위치를 직접 선�
 
 ```powershell
 Get-Command git | Select-Object Source
-Get-Command python | Select-Object Source
+py -3.11 -c "import sys; print(sys.executable)"
 Test-Path -LiteralPath "C:\Program Files\Arduino IDE\Arduino IDE.exe"
 Test-Path -LiteralPath "$env:LOCALAPPDATA\Programs\Arduino IDE\Arduino IDE.exe"
 ```
 
-마지막 두 명령 중 하나가 `True`이면 Arduino IDE가 정상 위치에 있습니다. Python 결과가
-`WindowsApps\python.exe`이고 `python --version` 대신 Microsoft Store가 열리면
-python.org의 Python 3.11을 다시 설치하고 `Add python.exe to PATH`를 체크합니다.
+마지막 두 명령 중 하나가 `True`이면 Arduino IDE가 정상 위치에 있습니다.
+`py -3.11`이 Python 3.11 경로를 출력하면 됩니다. 전역 `python`이 Python 3.14나
+WindowsApps를 가리켜도 프로젝트의 `.venv`를 활성화한 뒤에는 문제가 없습니다.
 
 ### Windows 프로젝트를 정확한 위치에 받기
 

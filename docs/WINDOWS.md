@@ -22,15 +22,20 @@ git --version
 
 ### 1-2. Python 3.11 설치
 
-1. [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)에서 `Windows installer (64-bit)`를 받습니다.
-2. 설치 첫 화면에서 `Add python.exe to PATH`를 체크합니다.
-3. 설치가 끝나면 새 PowerShell을 열고 확인합니다.
+먼저 `py list`를 실행합니다. Python 3.14만 있고 3.11이 없다면 3.14를 삭제하지 말고
+`py install 3.11`로 3.11을 추가합니다. `py install`이 인식되지 않는 이전
+launcher라면 [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)에서
+`Windows installer (64-bit)`를 받아 설치합니다. 가상환경을 만들 때 `py -3.11`로
+지정하므로 `Add python.exe to PATH`는 필수가 아닙니다.
 
 ```powershell
-python --version
+py list
+py -3.11 --version
 ```
 
-결과는 `Python 3.11.x`여야 합니다. 수업에서는 Python 3.11.9와 TensorFlow 2.15.1 조합으로 통일합니다.
+Python 3.14가 함께 설치되어 있어도 삭제하지 않습니다. `py -3.11 --version` 결과는
+`Python 3.11.x`여야 합니다. 수업에서는 Python 3.11.x와 TensorFlow 2.15.1 조합으로
+통일합니다.
 
 기본 사용자 설치 경로는 보통 다음과 같습니다.
 
@@ -38,13 +43,14 @@ python --version
 C:\Users\사용자이름\AppData\Local\Programs\Python\Python311\python.exe
 ```
 
-실제 실행 경로를 확인합니다.
+Python 3.11의 실제 실행 경로를 확인합니다.
 
 ```powershell
-Get-Command python | Select-Object Source
+py -3.11 -c "import sys; print(sys.executable)"
 ```
 
-`py` 명령이 없어도 괜찮습니다. 이 문서는 `python`을 사용합니다.
+가상환경을 만들 때만 `py -3.11`로 버전을 지정하고, 활성화 후에는 `python`을
+사용합니다.
 
 ### 1-3. Arduino IDE 2 설치
 
@@ -100,17 +106,22 @@ Test-Path -LiteralPath .\python
 저장소 최상위 폴더에서 실행합니다.
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+py -3.11 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
+python --version
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-이 문서에서는 가상환경을 활성화하지 않고 `.venv` 안의 Python을 직접 사용합니다. 따라서 `Activate.ps1` 실행 정책 오류를 피할 수 있습니다.
+`Set-ExecutionPolicy`는 현재 PowerShell 창에만 적용됩니다. 새 PowerShell을 열면
+프로젝트 폴더로 이동해 위의 `Set-ExecutionPolicy`와 `Activate.ps1` 두 줄을 다시
+실행합니다. 활성화되면 명령줄 앞에 `(.venv)`가 표시됩니다.
 
 설치를 확인합니다.
 
 ```powershell
-.\.venv\Scripts\python.exe -c "import tensorflow, numpy, serial, tkinter; print('Python 패키지 준비 완료')"
+python -c "import tensorflow, numpy, serial, tkinter; print('Python 패키지 준비 완료')"
 ```
 
 `Python 패키지 준비 완료`가 나오면 성공입니다. TensorFlow의 CPU 관련 안내 문구는 오류가 아닙니다.
@@ -150,6 +161,14 @@ git -C "$arduinoLibraries\Arduino_TensorFlowLite" pull
 ```
 
 설치 후 Arduino IDE를 다시 시작합니다.
+
+Arduino 라이브러리 폴더에서 프로젝트 루트로 돌아옵니다. 이후 Python 명령은 항상
+이 위치에서 실행합니다.
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Test-Path -LiteralPath .\README.md
+```
 
 ### 설치 확인
 
