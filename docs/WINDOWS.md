@@ -22,16 +22,19 @@ git --version
 
 ### 1-2. Python 3.11 설치
 
-먼저 `py list`를 실행합니다. Python 3.14만 있고 3.11이 없다면 3.14를 삭제하지 말고
+먼저 `py --list`를 실행합니다. Python 3.14만 있고 3.11이 없다면 3.14를 삭제하지 말고
 `py install 3.11`로 3.11을 추가합니다. `py install`이 인식되지 않는 이전
 launcher라면 [Python 3.11.9 공식 페이지](https://www.python.org/downloads/release/python-3119/)에서
 `Windows installer (64-bit)`를 받아 설치합니다. 가상환경을 만들 때 `py -3.11`로
 지정하므로 `Add python.exe to PATH`는 필수가 아닙니다.
 
 ```powershell
-py list
+py --list
 py -3.11 --version
 ```
+
+`py list`처럼 하이픈 없이 입력하면 Python이 `list`라는 파일을 실행하려고 합니다.
+설치된 Python 목록을 확인할 때는 반드시 `py --list`를 사용합니다.
 
 Python 3.14가 함께 설치되어 있어도 삭제하지 않습니다. `py -3.11 --version` 결과는
 `Python 3.11.x`여야 합니다. 수업에서는 Python 3.11.x와 TensorFlow 2.15.1 조합으로
