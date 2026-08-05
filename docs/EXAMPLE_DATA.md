@@ -19,6 +19,23 @@
 있습니다. 따라서 수집 프로그램이 예제 20장을 자신이 촬영한 사진으로 잘못
 계산하지 않습니다.
 
+실행 전에 저장소 최상위 폴더로 이동하고 가상환경을 활성화합니다.
+
+Windows PowerShell:
+
+```powershell
+Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
+```
+
+macOS:
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+source .venv/bin/activate
+```
+
 ## 방법 A: 전처리된 28×28 데이터로 바로 CNN 학습
 
 가장 간단한 방법입니다. 저장소 최상위 폴더에서 실행합니다.
@@ -26,7 +43,7 @@
 Windows PowerShell:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py `
+python python\train_camera_model.py `
   --digits 0123 `
   --data data\example_camera_digits `
   --output-dir models\example_camera
@@ -71,7 +88,7 @@ Arduino 헤더 생성: .../arduino/camera_03_inference/model_data.h
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\rebuild_camera_digits.py `
+python python\rebuild_camera_digits.py `
   --digits 0123 `
   --input data\example_camera_full `
   --output work\example_camera_digits_rebuilt
@@ -92,7 +109,7 @@ python python/rebuild_camera_digits.py \
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py `
+python python\train_camera_model.py `
   --digits 0123 `
   --data work\example_camera_digits_rebuilt `
   --output-dir models\example_camera_rebuilt
@@ -121,7 +138,7 @@ python python/train_camera_model.py \
 Windows에서 추론 GUI 실행:
 
 ```powershell
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 macOS:
@@ -141,7 +158,7 @@ python python/run_inference_gui.py --port /dev/cu.usbmodem1101
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
+python python\train_camera_model.py --data data\example_camera_digits --digits 0123 --epochs 3 --output-dir models\example_camera
 ```
 
 macOS:

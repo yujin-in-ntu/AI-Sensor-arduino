@@ -130,6 +130,14 @@ git -C ~/Documents/Arduino/libraries/Arduino_TensorFlowLite pull
 
 Sketchbook 위치를 바꿨다면 `~/Documents/Arduino` 대신 실제 위치를 사용합니다. 설치 후 Arduino IDE를 다시 시작합니다.
 
+Arduino 라이브러리 폴더에서 프로젝트 루트로 돌아옵니다. 이후 Python 명령은 항상
+이 위치에서 실행합니다.
+
+```bash
+cd ~/Projects/AI-Sensor-arduino
+test -f README.md && echo "프로젝트 경로 정상"
+```
+
 ## 8. 포트 확인
 
 ```bash

@@ -30,6 +30,9 @@ Windows PowerShell:
 ```powershell
 Set-Location -LiteralPath "$env:USERPROFILE\Projects\AI-Sensor-arduino"
 Test-Path -LiteralPath .\requirements.txt
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+.\.venv\Scripts\Activate.ps1
+python --version
 ```
 
 macOS Terminal:
@@ -37,6 +40,8 @@ macOS Terminal:
 ```bash
 cd ~/Projects/AI-Sensor-arduino
 test -f requirements.txt && echo "프로젝트 경로 정상"
+source .venv/bin/activate
+python --version
 ```
 
 Windows에서 `True`, macOS에서 `프로젝트 경로 정상`이 나와야 합니다.
@@ -84,7 +89,7 @@ Arduino IDE 시리얼 모니터와 시리얼 플로터를 닫고 실행합니다
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+python python\preview_camera.py --port COM5
 ```
 
 macOS:
@@ -116,7 +121,7 @@ arduino/camera_02_collect/camera_02_collect.ino
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\preview_camera.py --port COM5
+python python\preview_camera.py --port COM5
 ```
 
 macOS:
@@ -141,7 +146,7 @@ python python/preview_camera.py --port /dev/cu.usbmodem1101
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\collect_camera_data.py --port COM5 --digits 0123 --per-digit 20
+python python\collect_camera_data.py --port COM5 --digits 0123 --per-digit 20
 ```
 
 macOS:
@@ -199,7 +204,7 @@ for d in 0 1 2 3; do echo "숫자 $d: $(find data/camera_digits/$d -name '*.pgm'
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123
+python python\train_camera_model.py --digits 0123
 ```
 
 macOS:
@@ -255,7 +260,7 @@ arduino/camera_03_inference/camera_03_inference.ino
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\run_inference_gui.py --port COM5
+python python\run_inference_gui.py --port COM5
 ```
 
 macOS:
@@ -273,7 +278,7 @@ MNIST는 28×28 손글씨 숫자 데이터셋입니다. 처음 실행할 때 인
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_mnist_model.py --digits 0123 --per-digit 2000
+python python\train_mnist_model.py --digits 0123 --per-digit 2000
 ```
 
 macOS:
@@ -334,8 +339,8 @@ cp models/mnist/model_data.h arduino/camera_03_inference/model_data.h
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\collect_camera_data.py --port COM5 --digits 0123456789 --per-digit 20
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123456789
+python python\collect_camera_data.py --port COM5 --digits 0123456789 --per-digit 20
+python python\train_camera_model.py --digits 0123456789
 ```
 
 macOS:
@@ -354,7 +359,7 @@ python python/train_camera_model.py --digits 0123456789
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\rebuild_camera_digits.py --digits 0123 --input data\camera_full --output data\camera_digits_rebuilt
+python python\rebuild_camera_digits.py --digits 0123 --input data\camera_full --output data\camera_digits_rebuilt
 ```
 
 macOS:
@@ -368,7 +373,7 @@ python python/rebuild_camera_digits.py --digits 0123 --input data/camera_full --
 Windows:
 
 ```powershell
-.\.venv\Scripts\python.exe python\train_camera_model.py --digits 0123 --data data\camera_digits_rebuilt --output-dir models\camera_rebuilt
+python python\train_camera_model.py --digits 0123 --data data\camera_digits_rebuilt --output-dir models\camera_rebuilt
 ```
 
 macOS:
