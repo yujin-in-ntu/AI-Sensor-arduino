@@ -123,9 +123,12 @@ Windows PowerShell에서 설치된 버전을 먼저 확인합니다. Python 3.14
 삭제하지 않습니다.
 
 ```powershell
-py list
+py --list
 py -3.11 --version
 ```
+
+`py list`처럼 하이픈 없이 입력하면 Python이 `list`라는 파일을 실행하려고 합니다.
+설치된 Python 목록을 확인할 때는 반드시 `py --list`를 사용합니다.
 
 `py -3.11 --version`에서 `Python 3.11.x`가 나오면 준비가 끝난 것입니다. 3.11이
 없고 최신 [Python Install Manager](https://docs.python.org/3/using/windows.html)가
